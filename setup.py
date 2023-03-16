@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup, find_packages
+
+with open('requirements.txt') as f:
+	install_requires = f.read().strip().split('\n')
+
+# get version from __version__ variable 
+from ipx_stripe_payment import __version__ as version
+
+setup(
+	name='ipx_stripe_payment',
+	version=version,
+	description='A Stripe Payement Integration created by IPCONNEX',
+	author='Frappe',
+	author_email='voip@ipconnex.com',
+	packages=find_packages(),
+	zip_safe=False,
+	include_package_data=True,
+	install_requires=install_requires
+)

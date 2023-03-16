@@ -1,1 +1,1 @@
-# IPCONNEX Stripe Payment Module
+## IPCONNEX Stripe Payment Module
