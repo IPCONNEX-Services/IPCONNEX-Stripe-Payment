@@ -8,13 +8,6 @@ from frappe.utils import flt
 import stripe
 import random
 
-@frappe.whitelist()
-def versionFct():
-    return str(stripe)
-
-@frappe.whitelist()
-def getStripeSettingsData():
-    return json.dumps(frappe.get_all("Stripe Settings", fields=["secret_key","pay_to"]))
 
 @frappe.whitelist()
 def getPayementData(invoice_name,customer_name):

@@ -44,7 +44,7 @@
         
                     }     
                     frappe.call({
-                        method: "ipx_stripe_payment.ipx_stripe_payment.payement.getPayementData",
+                        method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.getPayementData",
                         args: {
                             invoice_name:   frm.doc.name,
                             customer_name:  frm.doc.customer_name
@@ -63,7 +63,7 @@
                                 return 0;
                             }
                             frappe.call({
-                                method: "ipx_stripe_payment.ipx_stripe_payment.payement.payInvoice",
+                                method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.payInvoice",
                                 args: {
                                     secKey:  sec_key,
                                     stripeID : data.stripe_id,
@@ -76,7 +76,7 @@
                                     const dateStr = date.toISOString().slice(0, 10).replace('T', ' ');
                                     if(res.error==1){
                                         frappe.call({
-                                            method: "ipx_stripe_payment.ipx_stripe_payment.payement.updatePaymentMethod",
+                                            method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.updatePaymentMethod",
                                             args: {
                                                 methodName:  data.name,
                                                 new_count: (data.fail_count+1),
@@ -96,7 +96,7 @@
                                 
                                 var payment_entry = frappe.get_doc("Payment Method",  data.name);
                                 frappe.call({
-                                    method: "ipx_stripe_payment.ipx_stripe_payment.payement.updatePaymentMethod",
+                                    method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.updatePaymentMethod",
                                     args: {
                                         methodName:  data.name,
                                         new_count: 0,
@@ -282,7 +282,7 @@ frappe.ui.form.on('Payment Method', {
         
                     }     
                     frappe.call({
-                        method: "ipx_stripe_payment.ipx_stripe_payment.payement.addPaymentCard",
+                        method: "ipconnex_stripe_payment.ipx_stripe_payment.payement.addPaymentCard",
                         args: {
                             name:name, 
                             number:number, 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-app_name = "ipx_stripe_payment"
+app_name = "ipconnex_stripe_payment"
 app_title = "IPCONNEX Stripe Payment"
 app_publisher = "Frappe"
 app_description = "A Stripe Payment module created by IPCONNEX"

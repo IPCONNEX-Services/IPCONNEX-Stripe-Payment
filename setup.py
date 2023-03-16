@@ -5,10 +5,10 @@ with open('requirements.txt') as f:
 	install_requires = f.read().strip().split('\n')
 
 # get version from __version__ variable 
-from ipx_stripe_payment import __version__ as version
+from ipconnex_stripe_payment import __version__ as version
 
 setup(
-	name='ipx_stripe_payment',
+	name='ipconnex_stripe_payment',
 	version=version,
 	description='A Stripe Payement Integration created by IPCONNEX',
 	author='Frappe',
