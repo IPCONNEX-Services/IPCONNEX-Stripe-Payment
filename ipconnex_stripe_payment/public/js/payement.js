@@ -282,7 +282,7 @@ frappe.ui.form.on('Payment Method', {
         
                     }     
                     frappe.call({
-                        method: "ipconnex_stripe_payment.ipx_stripe_payment.payement.addPaymentCard",
+                        method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.addPaymentCard",
                         args: {
                             name:name, 
                             number:number, 
