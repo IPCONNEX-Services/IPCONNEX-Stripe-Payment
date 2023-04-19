@@ -10,7 +10,7 @@ from ipconnex_stripe_payment import __version__ as version
 setup(
 	name='ipconnex_stripe_payment',
 	version=version,
-	description='A Stripe Payement Integration created by IPCONNEX',
+	description='A Stripe Payement Integration created by IPCONNEX to make payment using Stripe payment platform easier ',
 	author='Frappe',
 	author_email='voip@ipconnex.com',
 	packages=find_packages(),
