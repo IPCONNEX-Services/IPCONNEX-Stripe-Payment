@@ -156,5 +156,40 @@ def generateClientSecret(amount,currency,methods):
             "error":str(e),
             "status":0
         })
+    
+@frappe.whitelist() 
+def checkPaymentStatus(client_secret):
+    try:
+        # Retrieve the payment intent
+        payment_intent = stripe.PaymentIntent.retrieve(client_secret.split("_secret_")[0])
 
-        
+        # Check the status of the payment intent
+        print(f"PaymentIntent status: {payment_intent.status}")
+
+        # Based on the status, you can take further actions
+        if payment_intent.status == "succeeded":
+            # TODO create payment entry if not existing ...
+            return json.dumps({
+                "title":"Success",
+                "message":"payment has been successfully processed.",
+                "status":1
+            })
+        elif payment_intent.status == "requires_payment_method":
+            return json.dumps({
+                "title":"Info",
+                "message":"Waiting for your payment ",
+                "status":1
+            })
+        else:
+            return json.dumps({
+                "title":"Error",
+                "message":"Transaction failed ! server error ",
+                "status":1
+            })
+
+    except stripe.error.StripeError as e:
+        return json.dumps({
+            "error":str(e),
+            "status":0
+        })
+
