@@ -128,5 +128,33 @@ def addPaymentCard(name,number,expiration,cvc,stripeId,source,sec_key):
 
     return json.dumps(result)
 
+@frappe.whitelist() 
+def generateClientSecret(amount,currency,methods):
+    currency='cad'
+    methods=['card']
+    try:
+        
+        stripe_settings=frappe.db.get_all("Stripe Settings",
+                fields=["publishable_key","secret_key"],order_by='modified', limit_page_length=0)
+        if(len(stripe_settings)==0):
+            return json.dumps({
+                "error":'Set Stripe Settings first !',
+                "status":0
+            })
+        stripe.api_key=stripe_settings[0].secret_key
+        payment_intent = stripe.PaymentIntent.create(
+            amount=amount,  
+            currency=currency,
+            payment_method_types=methods
+        )
+        return json.dumps({
+            "Client Secret":payment_intent.client_secret,
+            "status":1
+        })
+    except stripe.error.StripeError as e:
+        return json.dumps({
+            "error":str(e),
+            "status":0
+        })
 
         
