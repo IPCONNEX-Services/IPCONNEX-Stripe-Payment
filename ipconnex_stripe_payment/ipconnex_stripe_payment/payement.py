@@ -102,8 +102,6 @@ def addPaymentCard(name,number,expiration,cvc,stripeId,source,sec_key):
 
     if(not stripeId):
         stripeId = stripe.Customer.create(name=name)['id']
-
-
     try: 
         pm = stripe.PaymentMethod.create(
             type="card",
