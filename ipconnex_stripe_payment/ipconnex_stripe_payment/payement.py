@@ -148,7 +148,7 @@ def generateClientSecret(amount,currency,methods):
             payment_method_types=methods
         )
         return {
-            "Client Secret":payment_intent.client_secret,
+            "client_secret":payment_intent.client_secret,
             "status":1
         }
     except stripe.error.StripeError as e:
