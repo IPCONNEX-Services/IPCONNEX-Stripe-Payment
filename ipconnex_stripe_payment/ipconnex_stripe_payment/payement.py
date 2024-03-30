@@ -137,25 +137,25 @@ def generateClientSecret(amount,currency,methods):
         stripe_settings=frappe.db.get_all("Stripe Settings",
                 fields=["publishable_key","secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
-            return json.dumps({
+            return{
                 "error":'Set Stripe Settings first !',
                 "status":0
-            })
+            }
         stripe.api_key=stripe_settings[0].secret_key
         payment_intent = stripe.PaymentIntent.create(
             amount=amount,  
             currency=currency,
             payment_method_types=methods
         )
-        return json.dumps({
+        return {
             "Client Secret":payment_intent.client_secret,
             "status":1
-        })
+        }
     except stripe.error.StripeError as e:
-        return json.dumps({
+        return {
             "error":str(e),
             "status":0
-        })
+        }
     
 @frappe.whitelist() 
 def checkPaymentStatus(client_secret):
@@ -169,27 +169,27 @@ def checkPaymentStatus(client_secret):
         # Based on the status, you can take further actions
         if payment_intent.status == "succeeded":
             # TODO create payment entry if not existing ...
-            return json.dumps({
+            return {
                 "title":"Success",
                 "message":"payment has been successfully processed.",
                 "status":1
-            })
+            }
         elif payment_intent.status == "requires_payment_method":
-            return json.dumps({
+            return {
                 "title":"Info",
                 "message":"Waiting for your payment ",
                 "status":1
-            })
+            }
         else:
-            return json.dumps({
+            return {
                 "title":"Error",
                 "message":"Transaction failed ! server error ",
                 "status":1
-            })
+            }
 
     except stripe.error.StripeError as e:
-        return json.dumps({
+        return {
             "error":str(e),
             "status":0
-        })
+        }
 
