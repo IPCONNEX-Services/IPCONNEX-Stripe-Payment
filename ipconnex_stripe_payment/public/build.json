@@ -1,5 +1,6 @@
 {
 	"js/payement.min.js": [
-		"public/js/payement_service_selector.html"
+		"public/js/payement_service_selector.html",
+		"ipconnex_stripe_payment/ipconnex_stripe_payment/www/process_payment.html"
 	]
 }
