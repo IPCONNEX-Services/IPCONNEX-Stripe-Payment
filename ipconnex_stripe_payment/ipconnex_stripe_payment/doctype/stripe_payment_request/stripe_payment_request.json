@@ -1,13 +1,22 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:sip_url",
+ "autoname": "format:SPR-{customer}-{##########}",
  "creation": "2023-02-15 00:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "sip_url"
+  "request_type",
+  "customer",
+  "is_supplier",
+  "sales_invoice",
+  "sales_order",
+  "requested_amount",
+  "currency",
+  "allow_card",
+  "generate_key",
+  "payment_url"
  ],
  "fields": [
   {
