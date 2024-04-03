@@ -45,7 +45,7 @@
    },
    {
     "fieldname": "currency",
-    "fieldtype": "Link",
+    "fieldtype": "Select",
     "label": "Currency",
     "options":"cad/nusd"
    },
