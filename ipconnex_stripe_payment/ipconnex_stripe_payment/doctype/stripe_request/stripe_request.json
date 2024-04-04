@@ -54,18 +54,17 @@
     },
     {
      "fieldname": "currency",
-     "fieldtype": "Select",
-     "label": "Currency",
-     "options":"CAD\nUSD"
+     "fieldtype": "Data",
+     "label": "Currency"
     },
     {
       "fieldname": "allow_card",
-      "fieldtype": "Check",
+      "fieldtype": "Data",
       "label": "Allow Card"
      },
      {
        "fieldname": "generate_key",
-       "fieldtype": "Button",
+       "fieldtype": "Data",
        "label": "Generate Key"
      },
      {
@@ -75,9 +74,8 @@
      },
      {
        "fieldname": "status",
-       "fieldtype": "Select",
-       "label": "Status",
-       "options": "\nDraft\nInitiated\nClosed\nPaid"
+       "fieldtype": "Data",
+       "label": "Status"
      }
  ],
  "links": [],
