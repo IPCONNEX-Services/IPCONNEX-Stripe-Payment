@@ -69,7 +69,7 @@
      },
      {
        "fieldname": "payment_url",
-       "fieldtype": "data",
+       "fieldtype": "Data",
        "label": "Payment Url"
      },
      {
