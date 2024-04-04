@@ -29,7 +29,51 @@
     "fieldname": "is_supplier",
     "fieldtype": "Check",
     "label": "Is Supplier"
-   }
+  
+   },
+   {
+    "fieldname": "sales_invoice",
+    "fieldtype": "Link",
+    "label": "Sales Invoice"
+   },
+   {
+    "fieldname": "sales_order",
+    "fieldtype": "Link",
+    "label": "Sales Order"
+   },
+   {
+    "fieldname": "requested_amount",
+    "fieldtype": "Float",
+    "label": "Requested Amount"
+   },
+   {
+    "fieldname": "currency",
+    "fieldtype": "Select",
+    "label": "Currency",
+    "options":"CAD/nUSD"
+   },
+   {
+     "fieldname": "allow_card",
+     "fieldtype": "Check",
+     "label": "Allow Card"
+    },
+    {
+      "fieldname": "generate_key",
+      "fieldtype": "Button",
+      "label": "Generate Key"
+    },
+    {
+      "fieldname": "payment_url",
+      "fieldtype": "data",
+      "label": "Payment Url"
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "\nDraft\nInitiated\nClosed\nPaid",
+      "default": "Draft"
+    }
     
  ],
  "links": [],
