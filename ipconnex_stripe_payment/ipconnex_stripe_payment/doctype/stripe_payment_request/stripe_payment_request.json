@@ -7,6 +7,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "request_type","status","generate_key", "payment_url",
  ],
  "fields": [
   {
