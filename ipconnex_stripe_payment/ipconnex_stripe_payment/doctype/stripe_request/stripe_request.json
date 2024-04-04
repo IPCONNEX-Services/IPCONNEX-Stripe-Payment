@@ -23,34 +23,29 @@
    "fieldname": "request_type",
    "fieldtype": "Select",
    "label": "Request Type",
-   "Mandatory":true,
    "options":"Customer\nSales Invoice\nSales Order\nManual"
   },  
   {
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options":"Customer",
-   "depends_on": "eval: doc.request_type=='Sales Invoice' ||  doc.request_type=='Sales Order'  "
+   "options":"Customer"
   },
   {
     "fieldname": "is_supplier",
     "fieldtype": "Check",
-    "label": "Is Supplier",
-    "depends_on": "eval: doc.request_type=='Customer' "
+    "label": "Is Supplier"
   
    },
    {
     "fieldname": "sales_invoice",
     "fieldtype": "Link",
-    "label": "Sales Invoice",
-    "depends_on": "eval: doc.request_type=='Sales Invoice'   "
+    "label": "Sales Invoice"
    },
    {
     "fieldname": "sales_order",
     "fieldtype": "Link",
-    "label": "Sales Order",
-    "depends_on": "eval:  doc.request_type=='Sales Order'  "
+    "label": "Sales Order"
    },
    {
     "fieldname": "requested_amount",
@@ -66,8 +61,7 @@
    {
      "fieldname": "allow_card",
      "fieldtype": "Check",
-     "label": "Allow Card",
-     "default":1
+     "label": "Allow Card"
     },
     {
       "fieldname": "generate_key",
@@ -84,8 +78,7 @@
       "fieldtype": "Select",
       "label": "Status",
       "options": "\nDraft\nInitiated\nClosed\nPaid",
-      "default": "Draft",
-      "depends_on": "eval:doc.__islocal"
+      "default": "Draft"
     }
     
  ],
