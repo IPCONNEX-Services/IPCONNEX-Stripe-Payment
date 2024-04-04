@@ -7,16 +7,6 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "request_type",
-  "customer",
-  "is_supplier",
-  "sales_invoice",
-  "sales_order",
-  "requested_amount",
-  "currency",
-  "allow_card",
-  "generate_key",
-  "payment_url"
  ],
  "fields": [
   {
