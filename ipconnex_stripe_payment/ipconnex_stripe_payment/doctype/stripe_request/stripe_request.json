@@ -56,7 +56,7 @@
      "fieldname": "currency",
      "fieldtype": "Select",
      "label": "Currency",
-     "options":"CAD/nUSD"
+     "options":"CAD\nUSD"
     },
     {
       "fieldname": "allow_card",
