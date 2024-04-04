@@ -24,14 +24,13 @@
     "fieldtype": "Link",
     "label": "Customer",
     "options":"Customer",
-    "depends_on": "eval: doc.request_type=='Sales Invoice' ||  doc.request_type=='Sales Order'  "
+    "read_only": "eval: doc.request_type=='Sales Invoice' ||  doc.request_type=='Sales Order'  "
    },
    {
      "fieldname": "is_supplier",
      "fieldtype": "Check",
      "label": "Is Supplier",
      "depends_on": "eval: doc.request_type=='Customer' "
-   
     },
     {
      "fieldname": "sales_invoice",
