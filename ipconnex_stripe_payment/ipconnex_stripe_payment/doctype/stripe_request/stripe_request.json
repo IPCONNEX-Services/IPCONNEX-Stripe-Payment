@@ -9,15 +9,7 @@
  "field_order": [ 
   "request_type",
   "customer",
-  "is_supplier",
-  "sales_invoice",
-  "sales_order",
-  "requested_amount",
-  "currency",
-  "allow_card",
-  "generate_key",
-  "payment_url",
-  "status"
+  "is_supplier"
  ],
  "fields": [ 
   {
@@ -37,23 +29,6 @@
     "fieldname": "is_supplier",
     "fieldtype": "Check",
     "label": "Is Supplier"
-   },
-   {
-    "fieldname": "sales_invoice",
-    "fieldtype": "Link",
-    "label": "Sales Invoice",
-    "options":"Sales Invoice"
-   },
-   {
-    "fieldname": "sales_order",
-    "fieldtype": "Link",
-    "label": "Sales Order",
-    "options":"Sales Order"
-   },
-   {
-    "fieldname": "requested_amount",
-    "fieldtype": "Float",
-    "label": "Requested Amount"
    }
  ],
  "links": [],
