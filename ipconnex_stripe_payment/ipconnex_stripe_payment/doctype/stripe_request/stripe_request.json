@@ -20,33 +20,74 @@
  ],
  "fields": [ 
   {
+   "fieldname": "request_type",
+   "fieldtype": "Select",
+   "label": "Request Type",
+   "Mandatory":true,
+   "options":"Customer\nSales Invoice\nSales Order\nManual"
+  },  
+  {
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options":"Customer"
+   "options":"Customer",
+   "depends_on": "eval: doc.request_type=='Sales Invoice' ||  doc.request_type=='Sales Order'  "
   },
   {
     "fieldname": "is_supplier",
     "fieldtype": "Check",
-    "label": "Is Supplier"
-  
+    "label": "Is Supplier",
+    "depends_on": "eval: doc.request_type=='Customer' "
    },
    {
     "fieldname": "sales_invoice",
     "fieldtype": "Link",
-    "label": "Sales Invoice"
+    "label": "Sales Invoice",
+    "options":"Sales Order",
+    "depends_on": "eval: doc.request_type=='Sales Invoice'   "
    },
    {
     "fieldname": "sales_order",
     "fieldtype": "Link",
-    "label": "Sales Order"
+    "label": "Sales Order",
+    "options":"Sales Order",
+    "depends_on": "eval:  doc.request_type=='Sales Order'  "
    },
    {
     "fieldname": "requested_amount",
     "fieldtype": "Float",
     "label": "Requested Amount"
-   }
-    
+   },
+   {
+    "fieldname": "currency",
+    "fieldtype": "Select",
+    "label": "Currency",
+    "options":"CAD\nUSD"
+   },
+   {
+     "fieldname": "allow_card",
+     "fieldtype": "Check",
+     "label": "Allow Card",
+     "default":1
+    },
+    {
+      "fieldname": "generate_key",
+      "fieldtype": "Button",
+      "label": "Generate Key"
+    },
+    {
+      "fieldname": "payment_url",
+      "fieldtype": "data",
+      "label": "Payment Url"
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "\nDraft\nInitiated\nClosed\nPaid",
+      "default": "Draft",
+      "depends_on": "eval:doc.__islocal"
+    }
  ],
  "links": [],
  "modified": "2020-11-09 19:48:21.690285",
