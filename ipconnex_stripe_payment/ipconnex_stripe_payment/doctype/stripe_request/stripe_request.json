@@ -11,7 +11,12 @@
   "customer",
   "is_supplier",
   "sales_invoice",
-  "sales_order","requested_amount"
+  "sales_order",
+  "requested_amount",
+  "currency",
+  "allow_card",
+  "generate_key",
+  "payment_url"
  ],
  "fields": [ 
   {
@@ -25,7 +30,8 @@
     "fieldname": "customer",
     "fieldtype": "Link",
     "label": "Customer",
-    "options":"Customer"
+    "options":"Customer",
+    "read_only_depends_on": "eval: doc.request_type=='Sales Invoice' ||  doc.request_type=='Sales Order'  "
    },
    {
      "fieldname": "is_supplier",
@@ -78,7 +84,8 @@
        "fieldname": "status",
        "fieldtype": "Select",
        "label": "Status",
-       "options": "Draft\nInitiated\nClosed\nPaid"
+       "options": "Draft\nInitiated\nClosed\nPaid",
+       "depends_on": "eval:doc.__islocal"
      }
  ],
  "links": [],
