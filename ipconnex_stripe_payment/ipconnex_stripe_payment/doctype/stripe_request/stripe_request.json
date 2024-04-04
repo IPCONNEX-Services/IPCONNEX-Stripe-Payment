@@ -54,17 +54,19 @@
     },
     {
      "fieldname": "currency",
-     "fieldtype": "Float",
-     "label": "Currency"
+     "fieldtype": "Select",
+     "label": "Currency",
+     "options":"CAD\nUSD"
     },
     {
       "fieldname": "allow_card",
       "fieldtype": "Check",
-      "label": "Allow Card"
+      "label": "Allow Credit Card ",
+      "default":1
      },
      {
        "fieldname": "generate_key",
-       "fieldtype": "Data",
+       "fieldtype": "Button",
        "label": "Generate Key"
      },
      {
@@ -99,7 +101,6 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC"
 }
