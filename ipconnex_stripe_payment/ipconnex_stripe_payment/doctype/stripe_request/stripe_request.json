@@ -54,12 +54,12 @@
     },
     {
      "fieldname": "currency",
-     "fieldtype": "Data",
+     "fieldtype": "Float",
      "label": "Currency"
     },
     {
       "fieldname": "allow_card",
-      "fieldtype": "Data",
+      "fieldtype": "Check",
       "label": "Allow Card"
      },
      {
@@ -74,8 +74,9 @@
      },
      {
        "fieldname": "status",
-       "fieldtype": "Data",
-       "label": "Status"
+       "fieldtype": "Select",
+       "label": "Status",
+       "options": "Draft\nInitiated\nClosed\nPaid"
      }
  ],
  "links": [],
