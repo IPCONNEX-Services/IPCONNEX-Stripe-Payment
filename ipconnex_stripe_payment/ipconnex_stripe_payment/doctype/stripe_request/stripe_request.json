@@ -1,23 +1,21 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:sip_url",
+ "autoname": "format:SPR-{customer}-{##########}",
  "creation": "2023-02-15 00:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "sip_url"
+    "customer"
  ],
  "fields": [
-  {
-   "fieldname": "sip_url",
-   "fieldtype": "Data",
-   "label": "SIP URL",
-   "Mandatory":true,
-   "unique": 1
-  }
-  
+    {
+     "fieldname": "customer",
+     "fieldtype": "Link",
+     "label": "Customer",
+     "options":"Customer"
+    }
  ],
  "links": [],
  "modified": "2020-11-09 19:48:21.690285",
