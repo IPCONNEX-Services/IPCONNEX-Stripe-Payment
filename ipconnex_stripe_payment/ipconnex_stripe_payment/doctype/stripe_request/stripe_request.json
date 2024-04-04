@@ -83,8 +83,7 @@
       "fieldname": "status",
       "fieldtype": "Select",
       "label": "Status",
-      "options": "\nDraft\nInitiated\nClosed\nPaid",
-      "default": "Draft",
+      "options": "\nDraft\nInitiated\nClosed\nPaid"
     }
  ],
  "links": [],
