@@ -25,8 +25,7 @@
     "fieldname": "customer",
     "fieldtype": "Link",
     "label": "Customer",
-    "options":"Customer",
-    "read_only": "eval: doc.request_type=='Sales Invoice' ||  doc.request_type=='Sales Order'  "
+    "options":"Customer"
    },
    {
      "fieldname": "is_supplier",
@@ -52,7 +51,34 @@
      "fieldname": "requested_amount",
      "fieldtype": "Float",
      "label": "Requested Amount"
-    }
+    },
+    {
+     "fieldname": "currency",
+     "fieldtype": "Select",
+     "label": "Currency",
+     "options":"CAD/nUSD"
+    },
+    {
+      "fieldname": "allow_card",
+      "fieldtype": "Check",
+      "label": "Allow Card"
+     },
+     {
+       "fieldname": "generate_key",
+       "fieldtype": "Button",
+       "label": "Generate Key"
+     },
+     {
+       "fieldname": "payment_url",
+       "fieldtype": "data",
+       "label": "Payment Url"
+     },
+     {
+       "fieldname": "status",
+       "fieldtype": "Select",
+       "label": "Status",
+       "options": "\nDraft\nInitiated\nClosed\nPaid"
+     }
  ],
  "links": [],
  "modified": "2020-11-09 19:48:21.690285",
