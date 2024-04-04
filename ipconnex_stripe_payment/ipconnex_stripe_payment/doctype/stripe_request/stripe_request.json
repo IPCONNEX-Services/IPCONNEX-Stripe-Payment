@@ -43,7 +43,7 @@
     "fieldname": "sales_invoice",
     "fieldtype": "Link",
     "label": "Sales Invoice",
-    "options":"Sales Order",
+    "options":"Sales Invoice",
     "depends_on": "eval: doc.request_type=='Sales Invoice'   "
    },
    {
@@ -67,8 +67,7 @@
    {
      "fieldname": "allow_card",
      "fieldtype": "Check",
-     "label": "Allow Card",
-     "default":1
+     "label": "Allow Card"
     },
     {
       "fieldname": "generate_key",
@@ -86,7 +85,6 @@
       "label": "Status",
       "options": "\nDraft\nInitiated\nClosed\nPaid",
       "default": "Draft",
-      "depends_on": "eval:doc.__islocal"
     }
  ],
  "links": [],
