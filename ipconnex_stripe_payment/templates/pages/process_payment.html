@@ -7,26 +7,7 @@
 {% endblock %}
 
 {% block script %}
-var stripe = Stripe('pk_test_OYpPFE8znYexr7YRW2T4Zz47');
-          
-              var elements = stripe.elements({clientSecret: "pi_3OzakQGmGCEPYxBa1dweGHy8_secret_KAxtG64DhXE6kl8Et8kNNxhV6"});
-              var paymentElement = elements.create('payment');
-              paymentElement.mount('#payment-element');
-          
-              form.addEventListener('submit', async (event) => {
-                  stripe.confirmPayment({
-                      elements,
-                      confirmParams: {
-                        return_url: 'https://example.com',
-          
-                      },
-                    })
-                    .then(function(result) {
-                      if (result.error) {
-                        // Inform the customer that there was an error.
-                      }
-                  });
-              });
+
 {% endblock %}
 
 {%- block page_content -%}
@@ -55,8 +36,27 @@ var stripe = Stripe('pk_test_OYpPFE8znYexr7YRW2T4Zz47');
             <div id="payment-message" class="hidden"></div>
           </form>
           
-          <style>
-          
-          </style>
+          <script>
+            var stripe = Stripe('pk_test_OYpPFE8znYexr7YRW2T4Zz47');
+            var elements = stripe.elements({clientSecret: "pi_3OzakQGmGCEPYxBa1dweGHy8_secret_KAxtG64DhXE6kl8Et8kNNxhV6"});
+            var paymentElement = elements.create('payment');
+            paymentElement.mount('#payment-element');
+        
+            form.addEventListener('submit', async (event) => {
+                stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: 'https://example.com',
+        
+                    },
+                    })
+                    .then(function(result) {
+                    if (result.error) {
+                        // Inform the customer that there was an error.
+                    }
+                });
+            });
+          </script>
+
     </main>
  {% endblock %}
