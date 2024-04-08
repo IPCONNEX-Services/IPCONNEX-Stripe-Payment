@@ -1,11 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us</title>
-</head>
-<body>
+{% extends "templates/web.html" %}
+
+
+{% block title %} Payment {% endblock %}
+
+{%- block header -%}
+{% endblock %}
+
+{% block script %}
+var stripe = Stripe('pk_test_OYpPFE8znYexr7YRW2T4Zz47');
+          
+              var elements = stripe.elements({clientSecret: "pi_3OzakQGmGCEPYxBa1dweGHy8_secret_KAxtG64DhXE6kl8Et8kNNxhV6"});
+              var paymentElement = elements.create('payment');
+              paymentElement.mount('#payment-element');
+          
+              form.addEventListener('submit', async (event) => {
+                  stripe.confirmPayment({
+                      elements,
+                      confirmParams: {
+                        return_url: 'https://example.com',
+          
+                      },
+                    })
+                    .then(function(result) {
+                      if (result.error) {
+                        // Inform the customer that there was an error.
+                      }
+                  });
+              });
+{% endblock %}
+
+{%- block page_content -%}
     <header>
         <h1>About Us</h1>
     </header>
@@ -34,28 +58,5 @@
           <style>
           
           </style>
-          <script>
-              var stripe = Stripe('pk_test_OYpPFE8znYexr7YRW2T4Zz47');
-          
-              var elements = stripe.elements({clientSecret: "pi_3OzakQGmGCEPYxBa1dweGHy8_secret_KAxtG64DhXE6kl8Et8kNNxhV6"});
-              var paymentElement = elements.create('payment');
-              paymentElement.mount('#payment-element');
-          
-              form.addEventListener('submit', async (event) => {
-                  stripe.confirmPayment({
-                      elements,
-                      confirmParams: {
-                        return_url: 'https://example.com',
-          
-                      },
-                    })
-                    .then(function(result) {
-                      if (result.error) {
-                        // Inform the customer that there was an error.
-                      }
-                  });
-              });
-          </script>
     </main>
-</body>
-</html>
+ {% endblock %}
