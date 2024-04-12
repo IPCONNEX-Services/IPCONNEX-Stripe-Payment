@@ -7,10 +7,41 @@ frappe.ui.form.on('Stripe Request', {
              console.log("Generate Key")})
     },
     sales_invoice:function(frm){
-             console.log("sales_invoice changed")
+        
+        if(frm.doc.sales_invoice ){
+             frappe.call({
+                method: "frappe.desk.form.load.getdoc",
+                args:{
+                    doctype:"Sales Invoice",
+                    name:frm.doc.sales_invoice
+                },
+                callback: function(res) { 
+                    frm.set_value({
+                        "requested_amount":res.docs[0].grand_total,
+                        "currency":res.docs[0].currency,
+                        "customer":res.docs[0].customer
+                    });
+                }
+            }) 
+        }
     },
     sales_order:function(frm){
-             console.log("sales_order changed")
+        if(frm.doc.sales_prder ){
+            frappe.call({
+               method: "frappe.desk.form.load.getdoc",
+               args:{
+                   doctype:"Sales Order",
+                   name:frm.doc.sales_order
+               },
+               callback: function(res) { 
+                   frm.set_value({
+                       "requested_amount":res.docs[0].grand_total,
+                       "currency":res.docs[0].currency,
+                       "customer":res.docs[0].customer
+                   });
+               }
+           }) 
+       }
     },
     customer:function(frm){
         if(frm.doc.customer && cur_frm.doc.request_type=="Customer" ){
