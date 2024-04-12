@@ -4,7 +4,34 @@
 frappe.ui.form.on('Stripe Request', {
     refresh:function(frm){
         $("button[data-fieldname='generate_key']").off("click").on("click",(event)=>{
-             console.log("Generate Key")})
+             console.log("Generate Key")
+            
+             frappe.call({
+                method:"ipconnex_stripe_payment.ipconnex_stripe_payment.payement.generateClientSecret",
+                args:{
+                    amount:parseInt(frm.doc.requested_amount*100),
+                    currency:(""+frm.doc.currency).toLowerCase(),
+                    methods:['card']
+                },
+                callback: function(response) { 
+                    console.log(response.status)
+                    console.log(response.message)
+                
+                }});
+            
+            
+            })
+    },
+    request_type:function(frm){   
+        frm.set_value({
+            "requested_amount":0.00,
+            "currency":"CAD",
+            "customer":"",
+            "sales_invoice":"",
+            "sales_order":"",
+            "is_supplier":0,
+            "allow_card":1,
+        });
     },
     sales_invoice:function(frm){
         
@@ -26,7 +53,7 @@ frappe.ui.form.on('Stripe Request', {
         }
     },
     sales_order:function(frm){
-        if(frm.doc.sales_prder ){
+        if(frm.doc.sales_order ){
             frappe.call({
                method: "frappe.desk.form.load.getdoc",
                args:{
