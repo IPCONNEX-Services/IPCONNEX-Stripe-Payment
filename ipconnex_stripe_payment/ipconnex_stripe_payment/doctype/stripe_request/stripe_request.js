@@ -14,8 +14,8 @@ frappe.ui.form.on('Stripe Request', {
                     methods:['card']
                 },
                 callback: function(response) { 
-                    if(response.status){
-                        frm.set_value({"payment_url":"/process_payment?token="+response.message});
+                    if(response.message.status){
+                        frm.set_value({"payment_url":"/process_payment?token="+response.message.client_secret});
                         if(frm.doc.__unsaved){
                             frm.save();
                         }
