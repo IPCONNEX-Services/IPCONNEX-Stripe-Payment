@@ -6,8 +6,6 @@ document.head.appendChild(script);
 frappe.ui.form.on('Stripe Request', {
     refresh:function(frm){
         $("button[data-fieldname='generate_key']").off("click").on("click",(event)=>{
-             console.log("Generate Key")
-            
              frappe.call({
                 method:"ipconnex_stripe_payment.ipconnex_stripe_payment.payement.generateClientSecret",
                 args:{
@@ -26,9 +24,7 @@ frappe.ui.form.on('Stripe Request', {
                             title: 'Success',
                             text: 'Token Updated ! ',
                           });
-
                     }else{
-                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Fail',
@@ -36,8 +32,6 @@ frappe.ui.form.on('Stripe Request', {
                           });
                     }
                 }});
-            
-            
             })
     },
     request_type:function(frm){   
