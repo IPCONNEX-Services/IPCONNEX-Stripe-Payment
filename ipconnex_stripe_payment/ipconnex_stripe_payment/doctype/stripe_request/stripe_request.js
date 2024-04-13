@@ -1,5 +1,7 @@
-// Copyright (c) 2020, Frappe and contributors
-// For license information, please see license.txt
+var script = document.createElement('script');
+script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@10';
+document.head.appendChild(script);
+
 
 frappe.ui.form.on('Stripe Request', {
     refresh:function(frm){
@@ -14,9 +16,25 @@ frappe.ui.form.on('Stripe Request', {
                     methods:['card']
                 },
                 callback: function(response) { 
-                    console.log(response.status)
-                    console.log(response.message)
-                
+                    if(response.status){
+                        frm.set_value({"payment_url":"/process_payment?token="+response.message});
+                        if(frm.doc.__unsaved){
+                            frm.save();
+                        }
+	                    Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Token Updated ! ',
+                          });
+
+                    }else{
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Fail',
+                            text: response.message,
+                          });
+                    }
                 }});
             
             
