@@ -49,12 +49,11 @@
             var paymentElement = elements.create('payment');
             paymentElement.mount('#payment-element');
         
-            form.addEventListener('submit', async (event) => {
+            paymentElement.addEventListener('submit', async (event) => {
                 stripe.confirmPayment({
                     elements,
                     confirmParams: {
                         return_url: 'https://example.com',
-        
                     },
                     })
                     .then(function(result) {
