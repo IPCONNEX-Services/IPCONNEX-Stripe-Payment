@@ -1,0 +1,71 @@
+{% extends "templates/web.html" %}
+
+
+{% block title %} Payment {% endblock %}
+
+{%- block header -%}
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}
+
+{%- block page_content -%}
+    <header>
+        <script src="https://js.stripe.com/v3/"></script>
+        <h1>About Us</h1>
+            <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+            <meta http-equiv="Pragma" content="no-cache" />
+            <meta http-equiv="Expires" content="0" />
+    </header>
+    <main>    
+        <h1>{{ payment_token}}</h1>
+        <h1>{{ public_stripe}}</h1>
+        <h1>{{ request_type}}</h1>
+        <h1>{{ customer}}</h1>
+        <h1>{{ sales_invoice}}</h1>
+        <h1>{{ sales_order}}</h1>
+        <h1>{{ requested_amount}}</h1>
+        <h1>{{ currency }}</h1>
+        <section>
+            <h2>Welcome to Our Company</h2>
+            <p>Our company specializes in providing top-notch services and products. We are committed to excellence and customer satisfaction.</p>
+        </section>
+        <section>
+            <h2>Our Mission</h2>
+            <p>Our mission is to make the world a better place through innovative solutions and unparalleled service.</p>
+        </section>
+        <form id="payment-form">
+            <div id="payment-element">
+              <!--Stripe.js injects the Payment Element-->
+            </div>
+            <button id="submit">
+              <div class="spinner hidden" id="spinner"></div>
+              <span id="button-text">Pay now</span>
+            </button>
+            <div id="payment-message" class="hidden"></div>
+          </form>
+          
+          <script>
+            var stripe = Stripe("{{public_stripe}}");
+            var elements = stripe.elements({clientSecret: "{{payment_token}}"});
+            var paymentElement = elements.create('payment');
+            paymentElement.mount('#payment-element');
+        
+            paymentElement.addEventListener('submit', async (event) => {
+                stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: 'https://example.com',
+                    },
+                    })
+                    .then(function(result) {
+                    if (result.error) {
+                        // Inform the customer that there was an error.
+                    }
+                });
+            });
+          </script>
+
+    </main>
+ {% endblock %}
