@@ -120,7 +120,7 @@ frappe.ui.form.on('Stripe Request', {
                     method: "frappe.desk.form.load.getdoc",
                     args:{
                         doctype:"Customer",
-                        name:frm.doc.custome
+                        name:frm.doc.customer
                     },
                     callback: function(res_customer) {
                         var dettes=0.00;
