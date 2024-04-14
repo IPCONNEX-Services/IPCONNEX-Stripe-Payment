@@ -13,7 +13,7 @@ def get_context(context):
                     filters={"payment_url": "/process_payment?token="+payment_token },
                     fields=["request_type","customer","sales_invoice","sales_order","requested_amount","currency"],order_by='modified', limit_page_length=0)
     
-    if(len(stripe_requests)==0):
+    if(len(stripe_requests)!=0):
         context.request_type=stripe_requests[0].request_type
         context.customer=stripe_requests[0].customer
         context.sales_invoice=stripe_requests[0].sales_invoice
