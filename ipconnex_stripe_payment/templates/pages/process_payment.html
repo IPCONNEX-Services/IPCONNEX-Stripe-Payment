@@ -44,8 +44,8 @@
           </form>
           
           <script>
-            var stripe = Stripe('pk_test_OYpPFE8znYexr7YRW2T4Zz47');
-            var elements = stripe.elements({clientSecret: "pi_3OzakQGmGCEPYxBa1dweGHy8_secret_KAxtG64DhXE6kl8Et8kNNxhV6"});
+            var stripe = Stripe("{{public_stripe}}");
+            var elements = stripe.elements({clientSecret: "{{payment_token}}"});
             var paymentElement = elements.create('payment');
             paymentElement.mount('#payment-element');
         

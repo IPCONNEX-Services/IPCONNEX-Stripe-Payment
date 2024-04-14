@@ -2,7 +2,7 @@ import frappe
 
 
 def get_context(context):
-    payment_token  = frappe.form_dict.get('token', '')
+    payment_token  = str(frappe.form_dict)
     context.payment_token = payment_token 
     stripe_settings=frappe.db.get_all("Stripe Settings",
             fields=["publishable_key"],order_by='modified', limit_page_length=0)
@@ -20,3 +20,11 @@ def get_context(context):
         context.sales_order=stripe_requests[0].sales_order
         context.requested_amount=stripe_requests[0].requested_amount
         context.currency=stripe_requests[0].currency
+
+
+
+
+
+
+
+
