@@ -32,7 +32,8 @@
     {
     "fieldname": "cards_list",
     "fieldtype": "Table",
-    "label": "Cards List"
+    "label": "Cards List",
+    "options": "Stripe Card"
     },   
     {
     "fieldname": "token",
