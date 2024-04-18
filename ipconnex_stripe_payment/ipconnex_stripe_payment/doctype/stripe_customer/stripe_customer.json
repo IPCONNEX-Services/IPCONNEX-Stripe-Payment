@@ -33,11 +33,16 @@
     "fieldname": "cards_list",
     "fieldtype": "Table",
     "label": "Cards List"
+    },   
+    {
+    "fieldname": "token",
+    "fieldtype": "Data",
+    "label": "Cards List"
     },  
     {
     "fieldname": "check_cards",
     "fieldtype": "Data",
-    "label": "SIP URL"
+    "label": "Check Cards"
     }
  ],
  "links": [],
