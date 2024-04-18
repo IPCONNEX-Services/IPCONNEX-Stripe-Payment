@@ -41,7 +41,7 @@
     },  
     {
     "fieldname": "check_cards",
-    "fieldtype": "Data",
+    "fieldtype": "Button",
     "label": "Check Cards"
     }
  ],
