@@ -24,8 +24,8 @@
      },  
      {
        "fieldname": "status",
-       "fieldtype": "Date",
-       "label": "Addition Date"
+       "fieldtype": "Data",
+       "label": "Status"
       }
   ],
   "links": [],
