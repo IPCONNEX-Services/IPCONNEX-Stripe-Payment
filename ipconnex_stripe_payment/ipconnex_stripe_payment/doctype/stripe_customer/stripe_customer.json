@@ -17,22 +17,22 @@
     {
     "fieldname": "customer",
     "fieldtype": "Data",
-    "label": "SIP URL"
+    "label": "Customer"
     },
     {
     "fieldname": "create_on_stripe",
-    "fieldtype": "Data",
-    "label": "SIP URL"
+    "fieldtype": "Button",
+    "label": "Create On Stripe"
     }, 
     {
     "fieldname": "stripe_id",
     "fieldtype": "Data",
-    "label": "SIP URL"
+    "label": "Stripe ID"
     },  
     {
     "fieldname": "cards_list",
-    "fieldtype": "Data",
-    "label": "SIP URL"
+    "fieldtype": "Table",
+    "label": "Cards List"
     },  
     {
     "fieldname": "check_cards",
