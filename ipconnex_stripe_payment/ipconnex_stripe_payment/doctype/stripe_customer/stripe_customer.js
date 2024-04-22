@@ -12,18 +12,22 @@ frappe.ui.form.on('Stripe Customer', {
                     args: {email:frm.doc.email, full_name:frm.doc.customer,sec_key:"sk_test_51CJ0txGmGCEPYxBaRPZlAeZMOMQySVQANE6E8dgrXsK075nlGu3G1amWhnkAKoG04HoP7qihiqOieGPkyosvj0BN00hRDOTR42"
                     },
                     callback: function(res){ 
-                        console.log(res.status);
+                        console.log(res.message.status);
                         if(res.status==1){ 
+                            frm.set_value({"stripe_id":res.message.id})
+                            if(frm.doc.__unsaved){
+                                frm.save();
+                            }
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
-                                text: res.message,
+                                text: res.message.message,
                             });
                         }else{ 
                             Swal.fire({
                             icon: "warning",
                             title: "Warning",
-                            text: res.message,
+                            text: res.message.message,
                         });
 
                         }

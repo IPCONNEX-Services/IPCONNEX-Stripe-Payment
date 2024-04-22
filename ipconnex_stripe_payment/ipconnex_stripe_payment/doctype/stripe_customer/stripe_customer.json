@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:sip_url",
+ "autoname": "field:customer",
  "creation": "2023-02-15 00:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -17,9 +17,9 @@
  ],
  "fields": [
     {
-    "fieldname": "customer",
-    "fieldtype": "Data",
-    "label": "Customer"
+      "fieldname": "customer",
+      "fieldtype": "Data",
+      "label": "Customer"
     },    
     {
       "fieldname": "email",
