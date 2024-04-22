@@ -59,7 +59,7 @@ frappe.ui.form.on('Stripe Customer', {
                         }
             }});
         } );
-        $("button[data-fieldname='check_cards']").off("click").on("click",
+        $("button[data-fieldname='get_new_card_token']").off("click").on("click",
             function(){  
                 frappe.call({
                     method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.getNewCardToken",
