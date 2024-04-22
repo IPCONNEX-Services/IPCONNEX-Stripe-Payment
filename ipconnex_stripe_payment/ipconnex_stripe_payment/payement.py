@@ -252,3 +252,15 @@ def processPayment(customer_id, payment_method_id, amount,description,sec_key, c
     except Exception as e :
         return {"message":str(e),"status":0}
     
+@frappe.whitelist()
+def getNewCardToken(customer_id,sec_key):
+    try:
+        stripe.api_key = sec_key
+        setup_intent = stripe.SetupIntent.create(
+            customer=customer_id,
+            payment_method_types=['card']
+        )
+        return {"result":setup_intent,"status":1}
+    except stripe.error.StripeError as e:
+        # Handle error
+        return {"message":str(e),"status":0}

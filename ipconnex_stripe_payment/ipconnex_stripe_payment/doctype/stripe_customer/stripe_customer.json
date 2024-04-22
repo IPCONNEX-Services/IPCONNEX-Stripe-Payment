@@ -8,10 +8,12 @@
  "engine": "InnoDB",
  "field_order": [
     "customer",
-    "create_on_stripe",
+    "email",
+    "get_stripe_id",
     "stripe_id",
     "cards_list",
-    "check_cards"
+    "check_cards",
+    "token"
  ],
  "fields": [
     {
@@ -39,16 +41,16 @@
     "fieldtype": "Table",
     "label": "Cards List",
     "options": "Stripe Card"
-    },   
-    {
-    "fieldname": "token",
-    "fieldtype": "Data",
-    "label": "Cards List"
-    },  
+    },     
     {
     "fieldname": "check_cards",
     "fieldtype": "Button",
     "label": "Check Cards"
+    },
+    {
+    "fieldname": "token",
+    "fieldtype": "Data",
+    "label": "Cards List"
     }
  ],
  "links": [],
