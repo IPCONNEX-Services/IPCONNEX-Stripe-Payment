@@ -14,15 +14,16 @@ frappe.ui.form.on('Stripe Customer', {
                     callback: function(res){ 
                         console.log(res.message.status);
                         if(res.message.status==1){ 
-                            frm.set_value({"stripe_id":res.message.id})
-                            if(frm.doc.__unsaved){
-                                frm.save();
-                            }
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: res.message.message,
-                            });
+                            frm.set_value({"stripe_id":res.message.id}).then(()=>{
+                                if(frm.doc.__unsaved){
+                                    frm.save();
+                                }
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: res.message.message,
+                                });
+                            })
                         }else{ 
                             Swal.fire({
                             icon: "warning",
