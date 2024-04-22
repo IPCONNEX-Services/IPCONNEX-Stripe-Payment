@@ -9,11 +9,11 @@ frappe.ui.form.on('Stripe Customer', {
             function(){  
                 frappe.call({
                     method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.getCustomer",
-                    args: {email:frm.doc.email, full_name:frm.doc.customer,sec_key:"sk_test_51CJ0txGmGCEPYxBaRPZlAeZMOMQySVQANE6E8dgrXsK075nlGu3G1amWhnkAKoG04HoP7qihiqOieGPkyosvj0BN00hRDOTR42"
+                    args: {email:frm.doc.email, full_name:frm.doc.customer
                     },
                     callback: function(res){ 
                         console.log(res.message.status);
-                        if(res.status==1){ 
+                        if(res.message.status==1){ 
                             frm.set_value({"stripe_id":res.message.id})
                             if(frm.doc.__unsaved){
                                 frm.save();
@@ -29,11 +29,7 @@ frappe.ui.form.on('Stripe Customer', {
                             title: "Warning",
                             text: res.message.message,
                         });
-
                         }
-                    
-                    
-                    
                     }});
         } );
     }
