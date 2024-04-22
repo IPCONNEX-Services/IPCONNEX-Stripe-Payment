@@ -11,8 +11,7 @@
     "addition_date",
     "brand",
     "exp_date",
-    "last_digits",
-    "status"
+    "last_digits"
   ],
   "fields": [ 
     {
@@ -39,11 +38,6 @@
        "fieldname": "last_digits",
        "fieldtype": "Data",
        "label": "Last Digits"
-    },
-    {
-       "fieldname": "status",
-       "fieldtype": "Data",
-       "label": "Status"
     }
   ],
   "links": [],

@@ -225,17 +225,16 @@ def getCustomerCards(customer_id):
         for pm in payment_methods.data:
             card_info = {
                 "brand": pm.card.brand,  
-                "last4": pm.card.last4,  
-                "exp_month": pm.card.exp_month, 
-                "exp_year": pm.card.exp_year, 
-                "id": pm.id  
+                "last_digits": pm.card.last4,  
+                "exp_date": str(pm.card.exp_month) +"/"+str(pm.card.exp_year),
+                "card_id": pm.id  
             }
             card_details.append(card_info)
-        return {"result":card_details,"status":1}
+        return {"result":card_details,"status":1,"message":"Cards Updated !"}
     except Exception as e :
         return {"message":str(e),"status":0}
-    
 
+    
 @frappe.whitelist() 
 def processPayment(customer_id, payment_method_id, amount,description, currency="usd"):
     try:

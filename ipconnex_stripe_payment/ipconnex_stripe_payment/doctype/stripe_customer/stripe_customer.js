@@ -41,10 +41,7 @@ frappe.ui.form.on('Stripe Customer', {
                 },
                 callback: function(res){ 
                     if(res.message.status==1){ 
-                        
-                        console.log(res.message.result);
-                        /*
-                        frm.set_value({"stripe_id":res.message.id}).then(()=>{
+                        frm.set_value({"cards_list":res.message.result}).then(()=>{
                             if(frm.doc.__unsaved){
                                 frm.save();
                             }
@@ -53,7 +50,7 @@ frappe.ui.form.on('Stripe Customer', {
                                 title: 'Success',
                                 text: res.message.message,
                             });
-                        })*/
+                        })
                     }else{ 
                         Swal.fire({
                         icon: "warning",
