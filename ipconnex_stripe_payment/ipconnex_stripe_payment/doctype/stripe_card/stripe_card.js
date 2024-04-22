@@ -1,4 +1,4 @@
-frappe.ui.form.on('Invoice Import Tool', {
+frappe.ui.form.on('Stripe Card', {
     refresh: function(frm) {
     }      
 });
