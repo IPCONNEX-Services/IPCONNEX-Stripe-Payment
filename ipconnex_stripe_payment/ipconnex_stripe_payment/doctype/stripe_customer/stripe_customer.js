@@ -4,7 +4,6 @@ document.head.appendChild(script);
 
 frappe.ui.form.on('Stripe Customer', {
     refresh:function(frm){
-
         $("button[data-fieldname='get_stripe_id']").off("click").on("click",
             function(){  
                 frappe.call({
@@ -60,7 +59,6 @@ frappe.ui.form.on('Stripe Customer', {
                         }
             }});
         } );
-        
         $("button[data-fieldname='check_cards']").off("click").on("click",
             function(){  
                 frappe.call({
@@ -88,7 +86,5 @@ frappe.ui.form.on('Stripe Customer', {
                         }
                     }});
         } );
-
-
     }
 });

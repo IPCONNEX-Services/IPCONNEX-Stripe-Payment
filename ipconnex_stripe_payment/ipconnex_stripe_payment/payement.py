@@ -269,6 +269,6 @@ def getNewCardToken(customer_id):
             customer=customer_id,
             payment_method_types=['card']
         )
-        return {"result":setup_intent,"status":1,"message":"Cards Token Updated !"}
+        return {"result":setup_intent.client_secret,"status":1,"message":"Cards Token Updated !"}
     except stripe.error.StripeError as e:
         return {"message":str(e),"status":0}
