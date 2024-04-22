@@ -28,7 +28,7 @@
  "add"
  ],
  "fields": [
-{
+  {
    "fieldname": "card_expired",
    "fieldtype": "HTML",
    "label": "Card Expired",

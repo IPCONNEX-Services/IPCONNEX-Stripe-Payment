@@ -194,9 +194,12 @@ def checkPaymentStatus(client_secret):
         }
 
 @frappe.whitelist() 
-def getCustomer(email, full_name,sec_key):
-    try:
-        stripe.api_key = sec_key
+def getCustomer(email, full_name):
+    try:        
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
+        if(len(stripe_settings)==0):
+            return {"message":"Please configure Stripe Settings first","status":0}
+        stripe.api_key = stripe_settings[0]["secret_key"]
         customers = stripe.Customer.list(email=email).auto_paging_iter()
         for customer in customers:
             if customer.name == full_name:
@@ -210,9 +213,12 @@ def getCustomer(email, full_name,sec_key):
         return  {"message":str(e),"status":0}
     
 @frappe.whitelist() 
-def getCustomerCards(customer_id,sec_key):
+def getCustomerCards(customer_id):
     try:
-        stripe.api_key = sec_key
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
+        if(len(stripe_settings)==0):
+            return {"message":"Please configure Stripe Settings first","status":0}
+        stripe.api_key = stripe_settings[0]["secret_key"]
         payment_methods = stripe.PaymentMethod.list(
             customer=customer_id,
             type="card"  
@@ -233,9 +239,12 @@ def getCustomerCards(customer_id,sec_key):
     
 
 @frappe.whitelist() 
-def processPayment(customer_id, payment_method_id, amount,description,sec_key, currency="usd"):
+def processPayment(customer_id, payment_method_id, amount,description, currency="usd"):
     try:
-        stripe.api_key = sec_key
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
+        if(len(stripe_settings)==0):
+            return {"message":"Please configure Stripe Settings first","status":0}
+        stripe.api_key = stripe_settings[0]["secret_key"]
         payment_intent = stripe.PaymentIntent.create(
             customer=customer_id,  
             payment_method=payment_method_id, 

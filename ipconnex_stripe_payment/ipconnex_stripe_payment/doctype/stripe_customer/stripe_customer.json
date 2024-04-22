@@ -50,7 +50,7 @@
     {
     "fieldname": "token",
     "fieldtype": "Data",
-    "label": "Cards List"
+    "label": "Token"
     }
  ],
  "links": [],
