@@ -16,42 +16,48 @@
     "token"
  ],
  "fields": [
-    {
+   {
       "fieldname": "customer",
-      "fieldtype": "Data",
-      "label": "Customer"
-    },    
-    {
+      "fieldtype": "Link",
+      "label": "Customer",
+      "options": "Customer"
+   },    
+   {
       "fieldname": "email",
       "fieldtype": "Data",
       "label": "Email"
-    },
-    {
+   },
+   {
     "fieldname": "get_stripe_id",
     "fieldtype": "Button",
     "label": "Get Stripe ID"
-    }, 
-    {
+   }, 
+   {
     "fieldname": "stripe_id",
     "fieldtype": "Data",
     "label": "Stripe ID"
-    },  
-    {
+   },  
+   {
     "fieldname": "cards_list",
     "fieldtype": "Table",
     "label": "Cards List",
     "options": "Stripe Card"
-    },     
-    {
+   },     
+   {
     "fieldname": "check_cards",
     "fieldtype": "Button",
     "label": "Check Cards"
-    },
-    {
-    "fieldname": "token",
-    "fieldtype": "Data",
-    "label": "Token"
-    }
+   },
+   {
+      "fieldname": "card_token",
+      "fieldtype": "Data",
+      "label": "Card Token"
+   },    
+   {
+      "fieldname": "get_new_card_token",
+      "fieldtype": "Button",
+      "label": "Get New Card token"
+   }
  ],
  "links": [],
  "modified": "2020-11-09 19:48:21.690285",

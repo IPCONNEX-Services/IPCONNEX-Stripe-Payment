@@ -32,6 +32,36 @@ frappe.ui.form.on('Stripe Customer', {
                         });
                         }
                     }});
-        } );
+        } ); 
+        $("button[data-fieldname='check_cards']").off("click").on("click",
+        function(){  
+            frappe.call({
+                method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.getCustomerCards",
+                args: {customer_id:frm.doc.stripe_id
+                },
+                callback: function(res){ 
+                    if(res.message.status==1){ 
+                        
+                        console.log(res.message.result);
+                        /*
+                        frm.set_value({"stripe_id":res.message.id}).then(()=>{
+                            if(frm.doc.__unsaved){
+                                frm.save();
+                            }
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res.message.message,
+                            });
+                        })*/
+                    }else{ 
+                        Swal.fire({
+                        icon: "warning",
+                        title: "Warning",
+                        text: res.message.message,
+                    });
+                    }
+                }});
+    } );
     }
 });
