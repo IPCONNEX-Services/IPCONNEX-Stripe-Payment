@@ -9,6 +9,9 @@
   "field_order": [
     "card_id",
     "addition_date",
+    "brand",
+    "exp_date",
+    "last_digits",
     "status"
   ],
   "fields": [ 
@@ -21,12 +24,27 @@
       "fieldname": "addition_date",
       "fieldtype": "Date",
       "label": "Addition Date"
-     },  
-     {
+    },  
+    {
+       "fieldname": "brand",
+       "fieldtype": "Data",
+       "label": "Brand"
+    },  
+    {
+      "fieldname": "exp_date",
+      "fieldtype": "Data",
+      "label": "Expiration Date"
+    },  
+    {
+       "fieldname": "last_digits",
+       "fieldtype": "Data",
+       "label": "Last Digits"
+    },
+    {
        "fieldname": "status",
        "fieldtype": "Data",
        "label": "Status"
-      }
+    }
   ],
   "links": [],
   "modified": "2023-12-10 00:00:00.000000",
@@ -53,6 +71,9 @@
     "fields": [
       "card_id",
       "addition_date",
+      "brand",
+      "exp_date",
+      "last_digits",
       "status"
     ]
   },

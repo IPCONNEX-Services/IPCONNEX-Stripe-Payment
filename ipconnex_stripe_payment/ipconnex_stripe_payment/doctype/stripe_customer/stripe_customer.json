@@ -18,11 +18,16 @@
     "fieldname": "customer",
     "fieldtype": "Data",
     "label": "Customer"
+    },    
+    {
+      "fieldname": "email",
+      "fieldtype": "Data",
+      "label": "Email"
     },
     {
-    "fieldname": "create_on_stripe",
+    "fieldname": "get_stripe_id",
     "fieldtype": "Button",
-    "label": "Create On Stripe"
+    "label": "Get Stripe ID"
     }, 
     {
     "fieldname": "stripe_id",

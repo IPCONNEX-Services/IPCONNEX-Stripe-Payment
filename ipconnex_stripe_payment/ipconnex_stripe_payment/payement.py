@@ -193,3 +193,18 @@ def checkPaymentStatus(client_secret):
             "status":0
         }
 
+@frappe.whitelist() 
+def getCustomer(email, full_name):
+    try:
+        customers = stripe.Customer.list(email=email).auto_paging_iter()
+        for customer in customers:
+            if customer.name == full_name:
+                # Customer found, return existing ID
+                return {"id":customer.id,"message":"The Stripe Customer already exists ","status":1}
+
+        # If no existing customer with the exact name and email is found, create a new one
+        new_customer = stripe.Customer.create(email=email, name=full_name)
+        return  {"id":new_customer.id,"message":"A New Stripe Customer Created","status":1}
+    except Exception as e :
+        return  {"message":str(e),"status":0}
+    
