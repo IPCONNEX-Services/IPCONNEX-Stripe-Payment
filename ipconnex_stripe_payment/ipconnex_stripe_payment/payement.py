@@ -194,8 +194,9 @@ def checkPaymentStatus(client_secret):
         }
 
 @frappe.whitelist() 
-def getCustomer(email, full_name):
+def getCustomer(email, full_name,sec_key):
     try:
+        stripe.api_key = sec_key
         customers = stripe.Customer.list(email=email).auto_paging_iter()
         for customer in customers:
             if customer.name == full_name:
@@ -207,4 +208,47 @@ def getCustomer(email, full_name):
         return  {"id":new_customer.id,"message":"A New Stripe Customer Created","status":1}
     except Exception as e :
         return  {"message":str(e),"status":0}
+    
+@frappe.whitelist() 
+def getCustomerCards(customer_id,sec_key):
+    try:
+        stripe.api_key = sec_key
+        payment_methods = stripe.PaymentMethod.list(
+            customer=customer_id,
+            type="card"  
+        )
+        card_details = []
+        for pm in payment_methods.data:
+            card_info = {
+                "brand": pm.card.brand,  
+                "last4": pm.card.last4,  
+                "exp_month": pm.card.exp_month, 
+                "exp_year": pm.card.exp_year, 
+                "id": pm.id  
+            }
+            card_details.append(card_info)
+        return {"result":card_details,"status":1}
+    except Exception as e :
+        return {"message":str(e),"status":0}
+    
+
+@frappe.whitelist() 
+def processPayment(customer_id, payment_method_id, amount,description,sec_key, currency="usd"):
+    try:
+        stripe.api_key = sec_key
+        payment_intent = stripe.PaymentIntent.create(
+            customer=customer_id,  
+            payment_method=payment_method_id, 
+            amount=amount,  
+            currency=currency,  
+            description=description,
+            confirm=True,  
+            automatic_payment_methods={
+                "enabled": True,
+                "allow_redirects": "never"
+            }
+        )
+        return {"result":payment_intent,"status":1}
+    except Exception as e :
+        return {"message":str(e),"status":0}
     
