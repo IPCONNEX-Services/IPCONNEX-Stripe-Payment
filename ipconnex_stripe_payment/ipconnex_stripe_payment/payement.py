@@ -283,7 +283,7 @@ def getEmail(customer):
                 order_by='modified', limit_page_length=0)
         emails=[]
         for contact in contacts_name:
-            email_doc=frappe.db.get_doc("Contact", contact.parent)
+            email_doc=frappe.get_doc("Contact", contact.parent)
             email=email.email_id
             if email not in emails and email_doc.is_primary_contact  == 1  : 
                 emails.append(email)
