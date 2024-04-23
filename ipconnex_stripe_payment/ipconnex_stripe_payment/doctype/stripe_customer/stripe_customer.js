@@ -3,6 +3,24 @@ script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@10';
 document.head.appendChild(script);
 
 frappe.ui.form.on('Stripe Customer', {
+    customer:function(frm){ 
+        if(frm.doc.customer){
+            frappe.call({
+                method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.getEmail",
+                args: {customer:frm.doc.customer
+                },
+                callback: function(res){ 
+                    if(res.message.status){
+                        frm.set_value({"email":res.message.result});
+
+                    }
+                }
+            });
+
+
+
+        }
+    },
     refresh:function(frm){
         $("button[data-fieldname='get_stripe_id']").off("click").on("click",
             function(){  

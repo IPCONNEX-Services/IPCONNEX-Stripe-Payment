@@ -254,6 +254,7 @@ def processPayment(customer_id, payment_method_id, amount,description, currency=
                 "allow_redirects": "never"
             }
         )
+        #Create Payment Entry in frappe 
         return {"result":payment_intent,"status":1}
     except Exception as e :
         return {"message":str(e),"status":0}
@@ -270,5 +271,22 @@ def getNewCardToken(customer_id):
             payment_method_types=['card']
         )
         return {"result":setup_intent.client_secret,"status":1,"message":"Cards Token Updated !"}
+    except stripe.error.StripeError as e:
+        return {"message":str(e),"status":0}
+
+
+@frappe.whitelist()
+def getEmail(customer):
+    try:    
+        contacts_name = frappe.db.get_all("Dynamic Link",fields=["parent"],filters={"link_doctype": "Customer","link_name": customer,
+                "parenttype": "Contact"},
+                order_by='modified', limit_page_length=0)
+        emails=[]
+        for contact in contacts_name:
+            email_doc=frappe.db.get_doc("Contact", contact.parent)
+            email=email.email_id
+            if email not in emails and email_doc.is_primary_contact  == 1  : 
+                emails.append(email)
+        return {"result":",".join(emails),"status":1}
     except stripe.error.StripeError as e:
         return {"message":str(e),"status":0}
