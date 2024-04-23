@@ -284,7 +284,7 @@ def getEmail(customer):
         emails=[]
         for contact in contacts_name:
             email_doc=frappe.get_doc("Contact", contact.parent)
-            email=email.email_id
+            email=email_doc.email_id
             if email not in emails and email_doc.is_primary_contact  == 1  : 
                 emails.append(email)
         return {"result":",".join(emails),"status":1}
