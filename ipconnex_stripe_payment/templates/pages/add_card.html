@@ -45,7 +45,8 @@
                 margin-bottom: 20px;
             }
     
-            h2 {
+            h2 {        
+                margin-top: 2rem;
                 text-align: center;
                 color: #444444;
                 font-weight: 700;
@@ -85,7 +86,7 @@
                 cursor: pointer;
                 transition: all 0.2s ease;
                 text-transform: uppercase;
-                margin :2em;
+                margin :1em 0em ;
                 font-weight: bold;
             }
     
@@ -111,6 +112,12 @@
             .web-footer {
                 display: none !important; 
             }
+
+            .div-with-border {
+                border: 1px solid #cccccc;  /* Solid border with a light gray color */
+                border-radius: 10px;       /* Smooth corners with a radius of 10px */
+                padding: 10px;             /* Padding inside the border */
+            }
         </style>
     </head>
     <body>
@@ -124,13 +131,17 @@
           Secure processing for your payments.
         </div>
     
-        <h2>Customer : Customer Test </h2>
-        <h2>Email : email@test.com </h2>
-        <div id="card-element">
-          <!-- Stripe Elements will go here -->
+        <h2>Customer : {{customer}} </h2>
+        <h2>Email : {{email}}</h2>
+        <div class="card-div">
+            <div id="card-element">
+                <!-- Stripe Elements will go here -->
+              </div>
+          
+              <button id="submit">Save Card</button>
+
         </div>
-    
-        <button id="submit">Save Card</button>
+
     
         <div id="error-message" class="error"></div>
     </main>
@@ -142,14 +153,14 @@
     </div>
     
     <script>
-    const stripe = Stripe('pk_test_OYpPFE8znYexr7YRW2T4Zz47');  // Use your public key
+    const stripe = Stripe("{{public_stripe}}");  // Use your public key
     const elements = stripe.elements();
     const cardElement = elements.create('card');
     cardElement.mount('#card-element');
     
     document.getElementById('submit').addEventListener('click', async () => {
         const result = await stripe.confirmCardSetup(
-            'seti_1P6i7XGmGCEPYxBaF9RZ05Al_secret_PwbKGGfZ70RT0CnTAFPUkS3CRmlHJWd',  // The client secret obtained from the server
+            "{{card_token}}",  // The client secret obtained from the server
             {
                 payment_method: {
                     card: cardElement,
