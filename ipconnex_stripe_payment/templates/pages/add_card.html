@@ -160,13 +160,13 @@
     
     document.getElementById('submit').addEventListener('click', async () => {
         const result = await stripe.confirmCardSetup(
-            "{{client_token}}",  // The client secret obtained from the server
+            "{{client_token}}", 
             {
                 payment_method: {
                     card: cardElement,
                     billing_details: {
                         name: "{{customer}}" ,
-                        email: "{{email}}",
+                        email: "{{email}}".split(",")[0],
                     },
                 },
             }
