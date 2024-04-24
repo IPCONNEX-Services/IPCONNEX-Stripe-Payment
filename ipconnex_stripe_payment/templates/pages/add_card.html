@@ -1,0 +1,169 @@
+{% extends "templates/web.html" %}
+
+
+{% block title %} Payment {% endblock %}
+
+{%- block header -%}
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}
+
+{%- block page_content -%}
+    <head>
+        <meta charset="UTF-8">
+        <title>Secure Card Setup</title>
+        <script src="https://js.stripe.com/v3/"></script>
+        <style>
+            body {
+                font-family: 'Roboto', sans-serif;
+                background-color: #f5f5f5;
+                padding: 20px;
+                color: #333;
+                display: flex;
+                flex-direction: column;
+                min-height: 90vh;
+            }
+    
+            main {
+                flex-grow: 1; /* This will push the content to the top, leaving room at the bottom for other elements */
+            }
+    
+            h1 {
+                text-align: center;
+                color: #4a90e2;
+                font-weight: 700;
+                font-size: 2em;
+                margin-bottom: 30px;
+            }
+    
+            p {
+                text-align: center;
+                color: #666;
+                font-size: 1.2em;
+                line-height: 1.5;
+                margin-bottom: 20px;
+            }
+    
+            h2 {
+                text-align: center;
+                color: #444444;
+                font-weight: 700;
+                font-size: 2em;
+                margin-bottom: 30px;
+            }
+    
+            .info {
+                background-color: #e2f3e7;
+                color: #3a7d44;
+                padding: 10px;
+                border: 1px solid #b8dfc5;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+    
+            #card-element {
+                border: 1px solid #cccccc;
+                padding: 10px;
+                background-color: white;
+                border-radius: 5px;
+                transition: all 0.2s ease;
+            }
+    
+            #card-element:focus {
+                border-color: #4a90e2;
+                box-shadow: 0 0 10px rgba(74, 144, 226, 0.2);
+            }
+    
+            #submit {
+                background-color: #4a90e2;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-transform: uppercase;
+                margin :2em;
+                font-weight: bold;
+            }
+    
+            #submit:hover {
+                background-color: #357abd;
+            }
+    
+            #submit:active {
+                background-color: #2c598a;
+            }
+    
+            .error {
+                color: red;
+                font-weight: bold;
+                text-align: center;
+            }
+    
+            .contact-info {
+                text-align: center;
+                margin-top: auto; /* This pushes the element to the bottom of the page */
+            }
+        </style>
+    </head>
+    <body>
+    
+    <main>
+        <h1>Add new Credit Card</h1>
+    
+        <p>This page is directly connected to Stripe for secure card setup. Your card information is processed securely and is not stored on this website.</p>
+    
+        <div class="info">
+          Secure processing for your payments.
+        </div>
+    
+        <h2>Customer : Customer Test </h2>
+        <h2>Email : email@test.com </h2>
+        <div id="card-element">
+          <!-- Stripe Elements will go here -->
+        </div>
+    
+        <button id="submit">Save Card</button>
+    
+        <div id="error-message" class="error"></div>
+    </main>
+    
+    <div class="contact-info">
+        <p>
+            If there's an error in your data, please contact the website administrator.
+        </p>
+    </div>
+    
+    <script>
+    const stripe = Stripe('pk_test_OYpPFE8znYexr7YRW2T4Zz47');  // Use your public key
+    const elements = stripe.elements();
+    const cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+    
+    document.getElementById('submit').addEventListener('click', async () => {
+        const result = await stripe.confirmCardSetup(
+            'seti_1P6i7XGmGCEPYxBaF9RZ05Al_secret_PwbKGGfZ70RT0CnTAFPUkS3CRmlHJWd',  // The client secret obtained from the server
+            {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: name,
+                        email: email,
+                    },
+                },
+            }
+        );
+        if (result.error) {
+            document.getElementById('error-message').innerText = result.error.message;
+        } else {
+            console.log("Payment method attached to customer:", result.setupIntent.payment_method);
+        }
+    });
+    </script>
+    
+    </body>
+ {% endblock %}
