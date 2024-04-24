@@ -13,7 +13,7 @@ def get_context(context):
     client_token = frappe.form_dict["token"]
     context.client_token = client_token
     stripe_customers=frappe.db.get_all("Stripe Customer",
-                    filters={"payment_url":client_token },
+                    filters={"card_token":client_token },
                     fields=["name","email","card_token"],order_by='modified', limit_page_length=0)
     if(len(stripe_customers)!=0):
         context.customer=stripe_customers[0].name
