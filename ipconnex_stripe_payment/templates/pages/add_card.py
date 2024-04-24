@@ -18,6 +18,5 @@ def get_context(context):
     if(len(stripe_customers)!=0):
         context.customer=stripe_customers[0].name
         context.email=stripe_customers[0].email
-        context.card_token=stripe_customers[0].card_token
     context.no_cache = 1
 
