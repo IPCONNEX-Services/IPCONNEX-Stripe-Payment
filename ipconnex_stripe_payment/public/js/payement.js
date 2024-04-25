@@ -1,12 +1,84 @@
     frappe.ui.form.on('Sales Invoice', {
         refresh: function(frm) {
-            frm.add_custom_button(__('Pay Invoice'), function(event) {console.log("Click Pay ")});
+            frm.add_custom_button(__('Pay Invoice'), function(event) {
+                $('button[data-label="Pay%20Invoice"]').prop('disabled', true);
+
+                if(frm.doc.status !== 'Unpaid' && frm.doc.status !== 'Overdue') {
+                    frappe.msgprint('This invoice is ' + frm.doc.status)
+                    $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
+                    return 0;
+                }
+                if( !frm.doc.customer_name || !frm.doc.name ){
+                    frappe.msgprint('Fill empty invoice values first!');
+                    $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
+                    return 0;
+
+                }    
+                frappe.call({
+                    method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.payInvoice",
+                    args: {
+                        secKey:  sec_key,
+                        stripeID : data.stripe_id,
+                        amount: data.total
+                    },
+                    callback: function(response) {
+
+
+                        
+                     }})
+
+
+                
+            /*
+            frappe.call({
+                                        method: "frappe.client.insert",
+                                        args: {
+                                          doc:{
+                                            "doctype": "Payment Entry",   
+                                            'party_type': 'Customer', 
+                                            'party': frm.doc.customer_name,    
+                                            'paid_amount':  data.total,    
+                                            'received_amount':  data.total,    
+                                            'target_exchange_rate': 1.0,    
+                                            "paid_from": data.debit_to,    
+                                            'paid_to_account_currency': 'CAD',   
+                                            "paid_from_account_currency": "CAD",    
+                                            'paid_to': pay_to,    
+                                            "reference_no": "stripe transaction ID",    
+                                            "reference_date": dateStr ,    
+                                            'company': data.company,    
+                                            'mode_of_payment': 'Credit Card',    
+                                            "status": "Submitted",    
+                                            'references': [      
+                                                    {   "reference_doctype": "Sales Invoice", 
+                                                        "reference_name": frm.doc.name, 
+                                                        "total_amount":  data.total, 
+                                                        "allocated_amount":  data.total, 
+                                                        "exchange_rate": 1.0, 
+                                                        "exchange_gain_loss": 0.0, 
+                                                        "parentfield": "references", 
+                                                        "parenttype": "Payment Entry", 
+                                                        "doctype": "Payment Entry Reference",      
+                                                    }    
+                                                ],  
+                                            }
+                                        },
+                                        callback: function(response) {
+                                          frappe.msgprint('Payment process has finished with success !');
+                                          $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
+                                          
+                                        }
+                                    });*/
+
+
+
+
+        });
 
                         
                 /*
                 
             // skip this invoice 
-            $('button[data-label="Pay%20Invoice"]').prop('disabled', true);
             if(frm.doc.status !== 'Unpaid' && frm.doc.status !== 'Overdue') {
                 frappe.msgprint('This invoice is ' + frm.doc.status)
                 $('button[data-label="Pay%20Invoice"]').prop('disabled', false);

@@ -322,6 +322,7 @@ def updateCards(client_token):
             }
             card_details.append(card_info)
         stripe_customer.set("cards_list", card_details) 
+        stripe_customer.card_token=""
         stripe_customer.save(ignore_permissions=True)
         return {"status":1,"message":"Cards Updated !"}
     except Exception as e :
