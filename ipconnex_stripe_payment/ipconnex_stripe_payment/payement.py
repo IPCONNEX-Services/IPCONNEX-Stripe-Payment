@@ -236,18 +236,20 @@ def getCustomerCards(customer_id):
 
     
 @frappe.whitelist() 
-def processPayment(customer_id, payment_method_id, amount,description, currency="usd"):
+def processPayment(customer_id, payment_method_id,doctype,docname):
     try:
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
+        invoice_doc=frappe.get_doc(doctype,docname)
+        amount=int(invoice_doc.grand_total*100)
         payment_intent = stripe.PaymentIntent.create(
             customer=customer_id,  
             payment_method=payment_method_id, 
             amount=amount,  
-            currency=currency,  
-            description=description,
+            currency=invoice_doc.currency.lower(),  
+            description=doctype+"#"+docname,
             confirm=True,  
             automatic_payment_methods={
                 "enabled": True,
@@ -255,7 +257,7 @@ def processPayment(customer_id, payment_method_id, amount,description, currency=
             }
         )
         #Create Payment Entry in frappe 
-        return {"result":payment_intent,"status":1}
+        return {"result":"Invoice Payed using Stripe","status":1}
     except Exception as e :
         return {"message":str(e),"status":0}
     
