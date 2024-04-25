@@ -290,3 +290,42 @@ def getEmail(customer):
         return {"result":",".join(emails),"status":1}
     except stripe.error.StripeError as e:
         return {"message":str(e),"status":0}
+    
+
+@frappe.whitelist(allow_guest=True)
+def updateCards(client_token):
+    try:
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
+        if(len(stripe_settings)==0):
+            return {"message":"Please configure Stripe Settings first","status":0}
+        stripe.api_key = stripe_settings[0]["secret_key"]
+        stripe_customers=frappe.db.get_all("Stripe Customer",
+                    filters={"card_token":client_token },
+                    fields=["name","email","card_token","stripe_id"],order_by='modified', limit_page_length=0)
+        if(len(stripe_customers)==0): 
+            return {"message":"Customer Card token unfound","status":0}
+
+        payment_methods = stripe.PaymentMethod.list(
+            customer=stripe_customers[0].stripe_id,
+            type="card"  
+        )
+        card_details = []
+        stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
+        
+        for child in stripe_customer.cards_list:
+                stripe_customer.remove(child)
+        stripe_customer.save()
+        for pm in payment_methods.data:
+            card_info = {
+                "brand": pm.card.brand,  
+                "last_digits": pm.card.last4,  
+                "exp_date": str(pm.card.exp_month) +"/"+str(pm.card.exp_year),
+                "card_id": pm.id  
+            }
+            card_details.append(card_info)
+        return {"status":1,"message":"Cards Updated !"}
+    except Exception as e :
+        return {"message":str(e),"status":0}
+
+
+
