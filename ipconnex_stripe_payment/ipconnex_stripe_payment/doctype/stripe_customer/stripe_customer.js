@@ -29,7 +29,6 @@ frappe.ui.form.on('Stripe Customer', {
                     args: {email:frm.doc.email, full_name:frm.doc.customer
                     },
                     callback: function(res){ 
-                        console.log(res.message.status);
                         if(res.message.status==1){ 
                             frm.set_value({"stripe_id":res.message.id}).then(()=>{
                                 if(frm.doc.__unsaved){

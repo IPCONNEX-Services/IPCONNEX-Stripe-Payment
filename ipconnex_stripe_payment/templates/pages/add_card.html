@@ -15,6 +15,7 @@
         <meta charset="UTF-8">
         <title>Secure Card Setup</title>
         <script src="https://js.stripe.com/v3/"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
         <style>
             body {
                 font-family: 'Roboto', sans-serif;
@@ -175,13 +176,32 @@
             document.getElementById('error-message').innerText = result.error.message;
         } else {
             console.log("Payment method attached to customer:", result.setupIntent.payment_method);
+
+
             frappe.call({
-                                        method:"ipconnex_stripe_payment.ipconnex_stripe_payment.payement.updateCards",
-                                        args:{
-                                                    client_token:"{{client_token}}"
- 
-                                        },
-                                        callback: function(response) { console.log(response) }});
+                method:"ipconnex_stripe_payment.ipconnex_stripe_payment.payement.updateCards",
+                args:{
+                    client_token:"{{client_token}}"
+                },
+                callback: function(res) { 
+                    if(res.message.status==1){ 
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res.message.message,
+                        });
+                    }else{ 
+                                                Swal.fire({
+                                                icon: "warning",
+                                                title: "Warning",
+                                                text: res.message.message,
+                                                }); 
+
+                    }
+                }});
+
+
+
         }
     });
     </script>

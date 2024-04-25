@@ -1,8 +1,10 @@
     frappe.ui.form.on('Sales Invoice', {
         refresh: function(frm) {
-            frm.add_custom_button(__('Pay Invoice'), function() {
+            frm.add_custom_button(__('Pay Invoice'), function(event) {console.log("Click Pay ")});
+
+                        
+                /*
                 
-        $('button[data-label="Pay%20Invoice"]').prop('disabled', true);
             // skip this invoice 
             $('button[data-label="Pay%20Invoice"]').prop('disabled', true);
             if(frm.doc.status !== 'Unpaid' && frm.doc.status !== 'Overdue') {
@@ -22,10 +24,7 @@
                 args: {
                     doctype: "Stripe Settings",
                     fields: ["secret_key", "gateway_name","pay_to"], 
-                    filters: { /*
-                        "field1": "some_value",
-                        "field2": ["!=", "other_value"],
-                        "field3": ["like", "%search_text%"]*/
+                    filters: {
                     }
                 },
                 callback: function(response) {
@@ -155,8 +154,8 @@
                         }
                     });
                 }
-            });
-        });
+            });*/
+        
         
     }
 });

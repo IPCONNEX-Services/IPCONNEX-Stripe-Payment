@@ -321,14 +321,11 @@ def updateCards(client_token):
                 "card_id": pm.id  
             }
             card_details.append(card_info)
-        
         stripe_customer.set("cards_list", card_details) 
         stripe_customer.save(ignore_permissions=True)
-
-
         return {"status":1,"message":"Cards Updated !"}
     except Exception as e :
-        return {"message":str(e),"status":0}
+        return {"message":"Please contact the website Administrator"+str(e),"status":0}
 
 
 
