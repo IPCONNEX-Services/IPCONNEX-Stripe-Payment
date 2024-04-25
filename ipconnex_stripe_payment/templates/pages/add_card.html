@@ -175,6 +175,13 @@
             document.getElementById('error-message').innerText = result.error.message;
         } else {
             console.log("Payment method attached to customer:", result.setupIntent.payment_method);
+            frappe.call({
+                                        method:"ipconnex_stripe_payment.ipconnex_stripe_payment.payement.updateCards",
+                                        args:{
+                                                    client_token:"{{client_token}}"
+ 
+                                        },
+                                        callback: function(response) { console.log(response) }});
         }
     });
     </script>

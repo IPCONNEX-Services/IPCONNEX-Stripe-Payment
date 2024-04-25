@@ -322,7 +322,7 @@ def updateCards(client_token):
             }
             card_details.append(card_info)
         
-        stripe_customer.set("cards_list", []) 
+        stripe_customer.set("cards_list", card_details) 
         stripe_customer.save(ignore_permissions=True)
 
 
