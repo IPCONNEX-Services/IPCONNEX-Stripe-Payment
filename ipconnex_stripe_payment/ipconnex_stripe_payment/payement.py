@@ -312,8 +312,6 @@ def updateCards(client_token):
         card_details = []
         stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
         
-        for child in stripe_customer.cards_list:
-                stripe_customer.remove(child)
         stripe_customer.save()
         for pm in payment_methods.data:
             card_info = {
@@ -323,6 +321,11 @@ def updateCards(client_token):
                 "card_id": pm.id  
             }
             card_details.append(card_info)
+        
+        stripe_customer.set("cards_list", []) 
+        stripe_customer.save(ignore_permissions=True)
+
+
         return {"status":1,"message":"Cards Updated !"}
     except Exception as e :
         return {"message":str(e),"status":0}
