@@ -97,7 +97,7 @@ frappe.ui.form.on('Stripe Customer', {
                                 if(frm.doc.__unsaved){
                                     frm.save();
                                 }
-                                let new_card_url=window.location.href.split("/app")[0]+"add_card?token="+res.message.result
+                                let new_card_url=window.location.href.split("/app")[0]+"/add_card?token="+res.message.result
                                 try{
                                     copyTextToClipboard(new_card_url);                                            
                                     Swal.fire({
