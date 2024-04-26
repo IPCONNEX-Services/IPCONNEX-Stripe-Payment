@@ -278,7 +278,7 @@ def processPayment(doctype,docname):
                         "reference_doctype": invoice_doc.doctype,
                         "reference_name": invoice_doc.name,
                         "total_amount": invoice_doc.grand_total,
-                        "allocated_amount":invoice_doc.outstanding_amount,
+                        "allocated_amount":min(invoice_doc.outstanding_amount,invoice_doc.grand_total),
                         "exchange_rate": 1.0,
                         "exchange_gain_loss": 0.0,
                         "parentfield": "references",
