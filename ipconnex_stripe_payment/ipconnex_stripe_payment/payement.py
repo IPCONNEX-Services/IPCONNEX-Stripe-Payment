@@ -257,36 +257,7 @@ def processPayment(doctype,docname):
             dateStr = frappe.utils.nowdate() 
 
             # Create a new Payment Entry document
-            payment_entry = frappe.get_doc({
-                "doctype": "Payment Entry",
-                'party_type': 'Customer',
-                'party': invoice_doc.customer,
-                'paid_amount': invoice_doc.grand_total,
-                'received_amount': invoice_doc.grand_total,
-                'target_exchange_rate': 1.0,
-                "paid_from": invoice_doc.debit_to,
-                'paid_to_account_currency': invoice_doc.currency,
-                "paid_from_account_currency": invoice_doc.currency,
-                'paid_to': pay_to,
-                "reference_no": "stripe:"+stripe_customer.stripe_id,
-                "reference_date": dateStr,
-                'company': invoice_doc.company,
-                'mode_of_payment': 'Credit Card',
-                "status": "Submitted",
-                'references': [
-                    {
-                        "reference_doctype": invoice_doc.doctype,
-                        "reference_name": invoice_doc.name,
-                        "total_amount": invoice_doc.grand_total,
-                        "allocated_amount":min(invoice_doc.outstanding_amount,invoice_doc.grand_total),
-                        "exchange_rate": 1.0,
-                        "exchange_gain_loss": 0.0,
-                        "parentfield": "references",
-                        "parenttype": "Payment Entry",
-                        "doctype": "Payment Entry Reference",
-                    },
-                ],
-            })
+
 
 
 
@@ -308,6 +279,36 @@ def processPayment(doctype,docname):
                         }
                     )
                     result= {"message":"Invoice Payed using Stripe #"+payment_intent.id,"status":1}
+                    payment_entry = frappe.get_doc({
+                        "doctype": "Payment Entry",
+                        'party_type': 'Customer',
+                        'party': invoice_doc.customer,
+                        'paid_amount': invoice_doc.grand_total,
+                        'received_amount': invoice_doc.grand_total,
+                        'target_exchange_rate': 1.0,
+                        "paid_from": invoice_doc.debit_to,
+                        'paid_to_account_currency': invoice_doc.currency,
+                        "paid_from_account_currency": invoice_doc.currency,
+                        'paid_to': pay_to,
+                        "reference_no": "stripe:"+payment_intent.id,
+                        "reference_date": dateStr,
+                        'company': invoice_doc.company,
+                        'mode_of_payment': 'Credit Card',
+                        "status": "Submitted",
+                        'references': [
+                            {
+                                "reference_doctype": invoice_doc.doctype,
+                                "reference_name": invoice_doc.name,
+                                "total_amount": invoice_doc.grand_total,
+                                "allocated_amount":min(invoice_doc.outstanding_amount,invoice_doc.grand_total),
+                                "exchange_rate": 1.0,
+                                "exchange_gain_loss": 0.0,
+                                "parentfield": "references",
+                                "parenttype": "Payment Entry",
+                                "doctype": "Payment Entry Reference",
+                            },
+                        ],
+                    })
                     payment_entry.save(ignore_permissions=True)     
                     return result
                 except: 
