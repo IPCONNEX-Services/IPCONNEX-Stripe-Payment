@@ -245,23 +245,15 @@ def processPayment(doctype,docname):
         invoice_doc=frappe.get_doc(doctype,docname)
         stripe_customers= frappe.get_all(
             "Stripe Customer",
-            filters={"customer": "Name"},
+            filters={"customer":invoice_doc.customer},
             fields=["name"])
     
-        if(len(stripe_customers))    :
+        if(len(stripe_customers)!=0 and len(invoice_doc.customer)!=0 )    :
             stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
             customer_id=stripe_customer.stripe_id
             if( len(stripe_customer.cards_list)==0):
                 return {"message":"No cards found ! please add a payment method to the current customer","status":0}
-            
             dateStr = frappe.utils.nowdate() 
-
-            # Create a new Payment Entry document
-
-
-
-
-            #Create Payment Entry in frappe 
             for stripe_card in stripe_customer.cards_list:
                 try:
                     payment_method_id=stripe_card.card_id

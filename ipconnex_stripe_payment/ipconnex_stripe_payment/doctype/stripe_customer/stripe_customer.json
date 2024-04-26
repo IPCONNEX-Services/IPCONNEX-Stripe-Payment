@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:customer",
+ "autoname": "format:{customer}",
  "creation": "2023-02-15 00:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -52,11 +52,18 @@
       "fieldname": "card_token",
       "fieldtype": "Data",
       "label": "Card Token"
-   },    
+   },
+   {
+      "fieldname": "open_new_card_url",
+      "fieldtype": "Data",
+      "label": "Open New Card Url",
+      "depends_on": "eval:doc.card_token"
+   },
    {
       "fieldname": "get_new_card_token",
       "fieldtype": "Button",
-      "label": "Get New Card token"
+      "label": "Get New Card token",
+      "depends_on": "eval:!doc.card_token"
    }
  ],
  "links": [],
