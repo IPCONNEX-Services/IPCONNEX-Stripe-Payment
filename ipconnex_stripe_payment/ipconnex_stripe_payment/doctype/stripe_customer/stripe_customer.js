@@ -1,7 +1,15 @@
 var script = document.createElement('script');
 script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@10';
 document.head.appendChild(script);
-
+function copyTextToClipboard(text) {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+}
+  
 frappe.ui.form.on('Stripe Customer', {
     customer:function(frm){ 
         if(frm.doc.customer && frm.doc.name.startsWith("new-stripe-customer")){
@@ -89,21 +97,20 @@ frappe.ui.form.on('Stripe Customer', {
                                     frm.save();
                                 }
                                 new_card_url=window.location.href.split("/app")[0]+"add_card?token="+res.message.result
-                                navigator.clipboard.writeText(new_card_url)
-                                    .then(() => {
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Success',
-                                                html: res.message.message+"<br>"+"New Card Link Copied To Clipboard"
-                                            });
-                                    })
-                                    .catch(err => {
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Success',
-                                            text: res.message.message,
-                                        });
+                                try{
+                                    copyTextToClipboard(new_card_url);                                            
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success',
+                                        html: res.message.message+"<br>"+"New Card Link Copied To Clipboard"
                                     });
+                                }catch(e){
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success',
+                                        text: res.message.message,
+                                    });
+                                }
                             })
                         }else{ 
                             Swal.fire({
