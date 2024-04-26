@@ -1,7 +1,17 @@
 var script = document.createElement('script');
 script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@10';
 document.head.appendChild(script);
-
+function copyToClipboard(text) {
+    // Attempt to copy text to the clipboard
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        console.log('Text copied to clipboard:', text);
+      })
+      .catch(err => {
+        console.error('Could not copy text to clipboard:', err);
+        // You can optionally show an error message here
+      });
+  }
 frappe.ui.form.on('Stripe Customer', {
     customer:function(frm){ 
         if(frm.doc.customer && frm.doc.name.startsWith("new-stripe-customer")){
@@ -88,11 +98,23 @@ frappe.ui.form.on('Stripe Customer', {
                                 if(frm.doc.__unsaved){
                                     frm.save();
                                 }
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Success',
-                                    text: res.message.message,
-                                });
+                                new_card_url=window.location.href.split("/app")[0]+"add_card?token="+res.message.result
+                                navigator.clipboard.writeText(new_card_url)
+                                    .then(() => {
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success',
+                                                html: res.message.message+"<br>"+"New Card Link Copied To Clipboard"
+                                            });
+                                    })
+                                    .catch(err => {
+                                        
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Success',
+                                            text: res.message.message,
+                                        });
+                                    });
                             })
                         }else{ 
                             Swal.fire({
