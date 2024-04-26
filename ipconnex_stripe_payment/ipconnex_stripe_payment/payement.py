@@ -307,7 +307,7 @@ def processPayment(doctype,docname):
                             "allow_redirects": "never"
                         }
                     )
-                    result= {"result":"Invoice Payed using Stripe #"+payment_intent.id,"status":1}
+                    result= {"message":"Invoice Payed using Stripe #"+payment_intent.id,"status":1}
                     payment_entry.save(ignore_permissions=True)     
                     return result
                 except: 
