@@ -4,7 +4,7 @@ document.head.appendChild(script);
 
 frappe.ui.form.on('Stripe Customer', {
     customer:function(frm){ 
-        if(frm.doc.customer){
+        if(frm.doc.customer && frm.doc.name.startsWith("new-stripe-customer")){
             frappe.call({
                 method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.getEmail",
                 args: {customer:frm.doc.customer
