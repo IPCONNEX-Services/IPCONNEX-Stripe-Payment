@@ -55,7 +55,7 @@
    },
    {
       "fieldname": "open_new_card_url",
-      "fieldtype": "Data",
+      "fieldtype": "Button",
       "label": "Open New Card Url",
       "depends_on": "eval:doc.card_token"
    },
