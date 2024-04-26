@@ -108,7 +108,6 @@ frappe.ui.form.on('Stripe Customer', {
                                             });
                                     })
                                     .catch(err => {
-                                        
                                         Swal.fire({
                                             icon: 'success',
                                             title: 'Success',
