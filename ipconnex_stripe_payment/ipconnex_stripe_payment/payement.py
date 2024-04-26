@@ -203,7 +203,6 @@ def getCustomer(email, full_name):
         customers = stripe.Customer.list(email=email).auto_paging_iter()
         for customer in customers:
             if customer.name == full_name:
-                # Customer found, return existing ID
                 return {"id":customer.id,"message":"The Stripe Customer already exists ","status":1}
         new_customer = stripe.Customer.create(email=email, name=full_name)
         return  {"id":new_customer.id,"message":"A New Stripe Customer Created","status":1}
@@ -238,10 +237,11 @@ def getCustomerCards(customer_id):
 @frappe.whitelist() 
 def processPayment(doctype,docname):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key,pay_to"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
+        pay_to = stripe_settings[0]["pay_to"]
         invoice_doc=frappe.get_doc(doctype,docname)
         stripe_customers= frappe.get_all(
             "Stripe Customer",
@@ -253,12 +253,48 @@ def processPayment(doctype,docname):
             customer_id=stripe_customer.stripe_id
             if( len(stripe_customer.cards_list)==0):
                 return {"message":"No cards found ! please add a payment method to the current customer","status":0}
+            
+            dateStr = frappe.utils.nowdate() 
+
+            # Create a new Payment Entry document
+            payment_entry = frappe.get_doc({
+                "doctype": "Payment Entry",
+                'party_type': 'Customer',
+                'party': invoice_doc.customer,
+                'paid_amount': invoice_doc.outstanding_amount,
+                'received_amount': invoice_doc.outstanding_amount,
+                'target_exchange_rate': 1.0,
+                "paid_from": invoice_doc.debit_to,
+                'paid_to_account_currency': invoice_doc.currency,
+                "paid_from_account_currency": invoice_doc.currency,
+                'paid_to': pay_to,
+                "reference_no": "stripe transaction ID",
+                "reference_date": dateStr,
+                'company': invoice_doc.company,
+                'mode_of_payment': 'Credit Card',
+                "status": "Submitted",
+                'references': [
+                    {
+                        "reference_doctype": invoice_doc.doctype,
+                        "reference_name": invoice_doc.name,
+                        "total_amount": invoice_doc.outstanding_amount,
+                        "allocated_amount":invoice_doc.outstanding_amount,
+                        "exchange_rate": 1.0,
+                        "exchange_gain_loss": 0.0,
+                        "parentfield": "references",
+                        "parenttype": "Payment Entry",
+                        "doctype": "Payment Entry Reference",
+                    },
+                ],
+            })
+
+
 
             #Create Payment Entry in frappe 
             for stripe_card in stripe_customer.cards_list:
                 try:
                     payment_method_id=stripe_card.card_id
-                    amount=int(invoice_doc.grand_total*100)
+                    amount=int(invoice_doc.outstanding_amount*100)
                     payment_intent = stripe.PaymentIntent.create(
                         customer=customer_id,  
                         payment_method=payment_method_id, 
@@ -272,13 +308,14 @@ def processPayment(doctype,docname):
                         }
                     )
                     result= {"result":"Invoice Payed using Stripe #"+payment_intent.id,"status":1}
+                    payment_entry.save(ignore_permissions=True)     
                     return result
                 except: 
                     payment_method_id=""
 
-
+            return {"message":"Failed to process payment please check customer cards ","status":0}
         else :
-            return {"message":str(e),"status":0}
+            return {"message":"No Customer Found  ! please link the current Invoice's Customer to Stripe ","status":0}
     except Exception as e :
         return {"message":str(e),"status":0}
     

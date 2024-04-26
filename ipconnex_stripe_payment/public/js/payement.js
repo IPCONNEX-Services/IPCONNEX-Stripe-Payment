@@ -15,70 +15,38 @@
 
                 }    
                 frappe.call({
-                    method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.payInvoice",
-                    args: {
-                        secKey:  sec_key,
-                        stripeID : data.stripe_id,
-                        amount: data.total
+                    method:"ipconnex_stripe_payment.ipconnex_stripe_payment.payement.processPayment",
+                    args:{
+                        doctype:frm.doc.doctype ,
+                        docname:frm.doc.name
+                  
                     },
-                    callback: function(response) {
-
-
-                        
-                     }})
-
-
-                
-            /*
-            frappe.call({
-                                        method: "frappe.client.insert",
-                                        args: {
-                                          doc:{
-                                            "doctype": "Payment Entry",   
-                                            'party_type': 'Customer', 
-                                            'party': frm.doc.customer_name,    
-                                            'paid_amount':  data.total,    
-                                            'received_amount':  data.total,    
-                                            'target_exchange_rate': 1.0,    
-                                            "paid_from": data.debit_to,    
-                                            'paid_to_account_currency': 'CAD',   
-                                            "paid_from_account_currency": "CAD",    
-                                            'paid_to': pay_to,    
-                                            "reference_no": "stripe transaction ID",    
-                                            "reference_date": dateStr ,    
-                                            'company': data.company,    
-                                            'mode_of_payment': 'Credit Card',    
-                                            "status": "Submitted",    
-                                            'references': [      
-                                                    {   "reference_doctype": "Sales Invoice", 
-                                                        "reference_name": frm.doc.name, 
-                                                        "total_amount":  data.total, 
-                                                        "allocated_amount":  data.total, 
-                                                        "exchange_rate": 1.0, 
-                                                        "exchange_gain_loss": 0.0, 
-                                                        "parentfield": "references", 
-                                                        "parenttype": "Payment Entry", 
-                                                        "doctype": "Payment Entry Reference",      
-                                                    }    
-                                                ],  
-                                            }
-                                        },
-                                        callback: function(response) {
-                                          frappe.msgprint('Payment process has finished with success !');
-                                          $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
-                                          
-                                        }
-                                    });*/
-
-
-
-
+                    callback: function(res) { 
+                      if(res.message.status==1){ 
+                        Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: res.message.message,
+                        });
+                  
+                      }else{ 
+                        Swal.fire({
+                        icon: "warning",
+                        title: "Warning",
+                        text: res.message.message,
+                      }); 
+                  
+                    }
+                  }
+                });
         });
+    }
+});
+frappe.ui.form.on('Sales Order', {
+    refresh: function(frm) {
+        frm.add_custom_button(__('Pay Invoice'), function(event) {
+            $('button[data-label="Pay%20Invoice"]').prop('disabled', true);
 
-                        
-                /*
-                
-            // skip this invoice 
             if(frm.doc.status !== 'Unpaid' && frm.doc.status !== 'Overdue') {
                 frappe.msgprint('This invoice is ' + frm.doc.status)
                 $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
@@ -89,146 +57,34 @@
                 $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
                 return 0;
 
-            }
-
+            }    
             frappe.call({
-                method: "frappe.client.get_list",
-                args: {
-                    doctype: "Stripe Settings",
-                    fields: ["secret_key", "gateway_name","pay_to"], 
-                    filters: {
-                    }
+                method:"ipconnex_stripe_payment.ipconnex_stripe_payment.payement.processPayment",
+                args:{
+                    doctype:frm.doc.doctype ,
+                    docname:frm.doc.name
+              
                 },
-                callback: function(response) {
-                    var settings = response.message[0];
-                    if(!settings){
-                        frappe.msgprint('Stripe settings not found!');
-                        $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
-                        return 0;
-                    }
-                    var sec_key=settings.secret_key;
-                    var pay_to=settings.pay_to;   
-                    if(!sec_key || !pay_to){
-                        frappe.msgprint('Error while reading Stripe Settings !');
-                        $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
-                        return 0;
-        
-                    }     
-                    frappe.call({
-                        method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.getPayementData",
-                        args: {
-                            invoice_name:   frm.doc.name,
-                            customer_name:  frm.doc.customer_name
-                        },
-                        callback: function(response) {
-                            var data =JSON.parse(response.message);
-                            if(!data.stripe_id || ! data.total){
-                                frappe.msgprint('A problem has occured while fetching data !');
-                                $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
-                                return 0;
-                
-                            }
-                            if(data.enabled!=1){
-                                frappe.msgprint('Payment method disabled !');
-                                $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
-                                return 0;
-                            }
-                            frappe.call({
-                                method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.payInvoice",
-                                args: {
-                                    secKey:  sec_key,
-                                    stripeID : data.stripe_id,
-                                    amount: data.total
-                                },
-                                callback: function(response) {
-                                    
-                                    var res =JSON.parse(response.message);
-                                    const date = new Date();
-                                    const dateStr = date.toISOString().slice(0, 10).replace('T', ' ');
-                                    if(res.error==1){
-                                        frappe.call({
-                                            method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.updatePaymentMethod",
-                                            args: {
-                                                methodName:  data.name,
-                                                new_count: (data.fail_count+1),
-                                                new_date: dateStr
-
-                                            },
-                                            callback: function(response) {
-                                                var message =JSON.parse(response.message);
-                                            }
-                                        });
-                                        frappe.msgprint(res.message);
-                                        $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
-                                        return 0;
-
-                                    }
-                                // payment method update count=0
-                                
-                                var payment_entry = frappe.get_doc("Payment Method",  data.name);
-                                frappe.call({
-                                    method: "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.updatePaymentMethod",
-                                    args: {
-                                        methodName:  data.name,
-                                        new_count: 0,
-                                        new_date: ""
-
-                                    },
-                                    callback: function(response) {
-                                        var message =JSON.parse(response.message);
-                                    }
-                                });
-                                    
-                                    // create payment entry 
-                                    
-
-                                    frappe.call({
-                                        method: "frappe.client.insert",
-                                        args: {
-                                          doc:{
-                                            "doctype": "Payment Entry",   
-                                            'party_type': 'Customer', 
-                                            'party': frm.doc.customer_name,    
-                                            'paid_amount':  data.total,    
-                                            'received_amount':  data.total,    
-                                            'target_exchange_rate': 1.0,    
-                                            "paid_from": data.debit_to,    
-                                            'paid_to_account_currency': 'CAD',   
-                                            "paid_from_account_currency": "CAD",    
-                                            'paid_to': pay_to,    
-                                            "reference_no": "stripe transaction ID",    
-                                            "reference_date": dateStr ,    
-                                            'company': data.company,    
-                                            'mode_of_payment': 'Credit Card',    
-                                            "status": "Submitted",    
-                                            'references': [      
-                                                    {   "reference_doctype": "Sales Invoice", 
-                                                        "reference_name": frm.doc.name, 
-                                                        "total_amount":  data.total, 
-                                                        "allocated_amount":  data.total, 
-                                                        "exchange_rate": 1.0, 
-                                                        "exchange_gain_loss": 0.0, 
-                                                        "parentfield": "references", 
-                                                        "parenttype": "Payment Entry", 
-                                                        "doctype": "Payment Entry Reference",      
-                                                    }    
-                                                ],  
-                                            }
-                                        },
-                                        callback: function(response) {
-                                          frappe.msgprint('Payment process has finished with success !');
-                                          $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
-                                          
-                                        }
-                                    });
-                                }
-                            });
-                        }
+                callback: function(res) { 
+                  if(res.message.status==1){ 
+                    Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: res.message.message,
                     });
+              
+                  }else{ 
+                    Swal.fire({
+                    icon: "warning",
+                    title: "Warning",
+                    text: res.message.message,
+                  }); 
+              
                 }
-            });*/
-        
-        
+              }
+            });
+        })
+
     }
 });
 

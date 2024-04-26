@@ -14,6 +14,7 @@ app_license = "MIT"
 # include js in doctype views
 doctype_js = {
 	"Sales Invoice" : "public/js/payement.js",
+	"Sales Order" : "public/js/payement.js",
     "Stripe Settings":"public/js/payement.js",
     "Payment Method":"public/js/payement.js",
 }
