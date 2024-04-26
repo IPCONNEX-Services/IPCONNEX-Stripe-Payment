@@ -268,7 +268,7 @@ def processPayment(doctype,docname):
                 'paid_to_account_currency': invoice_doc.currency,
                 "paid_from_account_currency": invoice_doc.currency,
                 'paid_to': pay_to,
-                "reference_no": "stripe transaction ID",
+                "reference_no": "stripe:"+stripe_customer.stripe_id,
                 "reference_date": dateStr,
                 'company': invoice_doc.company,
                 'mode_of_payment': 'Credit Card',
