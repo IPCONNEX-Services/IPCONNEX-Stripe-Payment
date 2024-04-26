@@ -237,7 +237,7 @@ def getCustomerCards(customer_id):
 @frappe.whitelist() 
 def processPayment(doctype,docname):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key,pay_to"],order_by='modified', limit_page_length=0)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
