@@ -25,16 +25,11 @@ frappe.ui.form.on('Stripe Customer', {
                     }
                 }
             });
-
-
-
         }
     },
     refresh:function(frm){
-        
         $("button[data-fieldname='open_new_card_url']").off("click").on("click",function(){
-            
-            let new_card_url=window.location.href.split("/app")[0]+"/add_card?token="+res.message.result
+            let new_card_url=window.location.href.split("/app")[0]+"/add_card?token="+frm.doc.card_token;
             window.open( new_card_url, '_blank');
         })
         $("button[data-fieldname='get_stripe_id']").off("click").on("click",
