@@ -6,6 +6,7 @@
   "doctype": "DocType",
   "editable_grid": 1,
   "engine": "InnoDB",
+  "track_changes": 0,
   "field_order": [
     "card_id",
     "addition_date",
@@ -17,7 +18,8 @@
     {
      "fieldname": "card_id",
      "fieldtype": "Data",
-     "label": "Card ID"
+     "label": "Card ID",
+     "columns": 2
     },    
     {
       "fieldname": "addition_date",
@@ -27,17 +29,20 @@
     {
        "fieldname": "brand",
        "fieldtype": "Data",
-       "label": "Brand"
+       "label": "Brand",
+       "columns": 2
     },  
     {
       "fieldname": "exp_date",
       "fieldtype": "Data",
-      "label": "Expiration Date"
+      "label": "Expiration Date",
+      "columns": 2
     },  
     {
        "fieldname": "last_digits",
        "fieldtype": "Data",
-       "label": "Last Digits"
+       "label": "Last Digits",
+       "columns": 2
     }
   ],
   "links": [],

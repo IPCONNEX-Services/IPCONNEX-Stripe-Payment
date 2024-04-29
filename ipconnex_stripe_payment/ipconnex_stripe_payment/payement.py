@@ -283,12 +283,13 @@ def processPayment(doctype,docname):
                         'paid_to_account_currency': invoice_doc.currency,
                         "paid_from_account_currency": invoice_doc.currency,
                         'paid_to': pay_to,
-                        "reference_no": "stripe:"+payment_intent.id,
+                        "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
                         "reference_date": dateStr,
                         'company': invoice_doc.company,
                         'mode_of_payment': 'Credit Card',
                         "status": "Submitted",
-                        'references': [
+                        "docstatus": 1,
+                        "references": [
                             {
                                 "reference_doctype": invoice_doc.doctype,
                                 "reference_name": invoice_doc.name,
