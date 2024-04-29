@@ -257,11 +257,12 @@ def processPayment(doctype,docname):
             for stripe_card in stripe_customer.cards_list:
                 try:
                     payment_method_id=stripe_card.card_id
-                    amount=int(invoice_doc.grand_total*100)
+                    amount=min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
+                    amount_cent=int(amount*100)
                     payment_intent = stripe.PaymentIntent.create(
                         customer=customer_id,  
                         payment_method=payment_method_id, 
-                        amount=amount,  
+                        amount=amount_cent,  
                         currency=invoice_doc.currency.lower(),  
                         description=doctype+"#"+docname,
                         confirm=True,  
@@ -275,8 +276,8 @@ def processPayment(doctype,docname):
                         "doctype": "Payment Entry",
                         'party_type': 'Customer',
                         'party': invoice_doc.customer,
-                        'paid_amount': invoice_doc.grand_total,
-                        'received_amount': invoice_doc.grand_total,
+                        'paid_amount': amount,
+                        'received_amount': amount,
                         'target_exchange_rate': 1.0,
                         "paid_from": invoice_doc.debit_to,
                         'paid_to_account_currency': invoice_doc.currency,
@@ -292,7 +293,7 @@ def processPayment(doctype,docname):
                                 "reference_doctype": invoice_doc.doctype,
                                 "reference_name": invoice_doc.name,
                                 "total_amount": invoice_doc.grand_total,
-                                "allocated_amount":min(invoice_doc.outstanding_amount,invoice_doc.grand_total),
+                                "allocated_amount":amount,
                                 "exchange_rate": 1.0,
                                 "exchange_gain_loss": 0.0,
                                 "parentfield": "references",
