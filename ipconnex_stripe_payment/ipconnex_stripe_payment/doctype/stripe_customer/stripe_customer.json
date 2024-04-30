@@ -21,11 +21,21 @@
       "fieldtype": "Link",
       "label": "Customer",
       "options": "Customer"
-   },    
+   },        
    {
       "fieldname": "email",
       "fieldtype": "Data",
       "label": "Email"
+   },
+   {
+      "fieldname": "auto_process",
+      "fieldtype": "Check",
+      "label": "Auto Process Invoices"
+   },
+   {
+      "fieldname": "send_email",
+      "fieldtype": "Check",
+      "label": "Send Email"
    },
    {
     "fieldname": "get_stripe_id",
