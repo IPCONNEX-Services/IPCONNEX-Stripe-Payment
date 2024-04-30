@@ -257,7 +257,10 @@ def processPayment(doctype,docname):
             for stripe_card in stripe_customer.cards_list:
                 try:
                     payment_method_id=stripe_card.card_id
-                    amount=min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
+                    if(invoice_doc.disable_rounded_total):
+                        amount=min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
+                    else:
+                        amount=invoice_doc.outstanding_amount
                     amount_cent=int(amount*100)
                     payment_intent = stripe.PaymentIntent.create(
                         customer=customer_id,  
