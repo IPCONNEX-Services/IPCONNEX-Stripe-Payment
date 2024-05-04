@@ -263,3 +263,7 @@ def updateCards(client_token):
     except Exception as e :
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
 
+def checkProcessInvoice(doc, method):
+    frappe.msgprint("This is a message"+doc.doctype+"/"+doc.name)
+
+

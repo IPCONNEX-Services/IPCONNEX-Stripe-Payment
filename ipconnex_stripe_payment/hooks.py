@@ -26,3 +26,8 @@ scheduler_events = {
 }
 
 
+doc_events = {
+    "Sales Invoice": {
+        "on_submit": "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.checkProcessInvoice"
+    }
+}
