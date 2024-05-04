@@ -268,6 +268,7 @@ def checkProcessInvoice(doc, method):
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
             frappe.msgprint("Error : Please configure Stripe Settings first")
+            return
         stripe.api_key = stripe_settings[0]["secret_key"]
         pay_to = stripe_settings[0]["pay_to"]
         stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name"],filters={"customer":doc.customer,"auto_process":1},order_by='modified', limit_page_length=0)
@@ -276,6 +277,7 @@ def checkProcessInvoice(doc, method):
             customer_id=stripe_customer.stripe_id
             if( len(stripe_customer.cards_list)==0):
                 frappe.msgprint("Error : No cards found ! please add a payment method to the current customer")
+                return
             dateStr = frappe.utils.nowdate() 
             for stripe_card in stripe_customer.cards_list:
                 try:
@@ -330,6 +332,7 @@ def checkProcessInvoice(doc, method):
                     })
                     payment_entry.save(ignore_permissions=True)     
                     frappe.msgprint("Success :Invoice Payed using Stripe #"+payment_intent.id)
+                    return
                 except: 
                     payment_method_id=""
             frappe.msgprint("Error : Failed to process payment please check customer cards ")
