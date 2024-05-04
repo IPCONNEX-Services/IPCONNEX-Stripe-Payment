@@ -264,6 +264,77 @@ def updateCards(client_token):
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
 
 def checkProcessInvoice(doc, method):
-    frappe.msgprint("This is a message"+doc.doctype+"/"+doc.name)
-
+    try:
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to"],order_by='modified', limit_page_length=0)
+        if(len(stripe_settings)==0):
+            frappe.msgprint("Error : Please configure Stripe Settings first")
+        stripe.api_key = stripe_settings[0]["secret_key"]
+        pay_to = stripe_settings[0]["pay_to"]
+        stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name"],filters={"customer":doc.customer,"auto_process":1},order_by='modified', limit_page_length=0)
+        if(len(stripe_customers)!=0 and len(doc.customer)!=0 )    :
+            stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
+            customer_id=stripe_customer.stripe_id
+            if( len(stripe_customer.cards_list)==0):
+                frappe.msgprint("Error : No cards found ! please add a payment method to the current customer")
+            dateStr = frappe.utils.nowdate() 
+            for stripe_card in stripe_customer.cards_list:
+                try:
+                    payment_method_id=stripe_card.card_id
+                    if(doc.disable_rounded_total):
+                        amount=min(doc.outstanding_amount,doc.grand_total)
+                    else:
+                        amount=doc.outstanding_amount
+                    amount_cent=int(amount*100)
+                    payment_intent = stripe.PaymentIntent.create(
+                        customer=customer_id,  
+                        payment_method=payment_method_id, 
+                        amount=amount_cent,  
+                        currency=doc.currency.lower(),  
+                        description=doc.doctype+"#"+doc.name,
+                        confirm=True,  
+                        automatic_payment_methods={
+                            "enabled": True,
+                            "allow_redirects": "never"
+                        }
+                    )
+                    payment_entry = frappe.get_doc({
+                        "doctype": "Payment Entry",
+                        'party_type': 'Customer',
+                        'party': doc.customer,
+                        'paid_amount': amount,
+                        'received_amount': amount,
+                        'target_exchange_rate': 1.0,
+                        "paid_from": doc.debit_to,
+                        'paid_to_account_currency': doc.currency,
+                        "paid_from_account_currency": doc.currency,
+                        'paid_to': pay_to,
+                        "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
+                        "reference_date": dateStr,
+                        'company': doc.company,
+                        'mode_of_payment': 'Credit Card',
+                        "status": "Submitted",
+                        "docstatus": 1,
+                        "references": [
+                            {
+                                "reference_doctype": doc.doctype,
+                                "reference_name": doc.name,
+                                "total_amount": doc.grand_total,
+                                "allocated_amount":amount,
+                                "exchange_rate": 1.0,
+                                "exchange_gain_loss": 0.0,
+                                "parentfield": "references",
+                                "parenttype": "Payment Entry",
+                                "doctype": "Payment Entry Reference",
+                            },
+                        ],
+                    })
+                    payment_entry.save(ignore_permissions=True)     
+                    frappe.msgprint("Success :Invoice Payed using Stripe #"+payment_intent.id)
+                except: 
+                    payment_method_id=""
+            frappe.msgprint("Error : Failed to process payment please check customer cards ")
+        else :
+            frappe.msgprint("Error : No Customer Found  ! please link the current Invoice's Customer to Stripe")
+    except Exception as e :
+        frappe.msgprint("Error : "+str(e))
 

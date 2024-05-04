@@ -19,7 +19,7 @@
      "fieldname": "card_id",
      "fieldtype": "Data",
      "label": "Card ID",
-     "columns": 2
+     "in_list_view": 2
     },    
     {
       "fieldname": "addition_date",
@@ -30,19 +30,19 @@
        "fieldname": "brand",
        "fieldtype": "Data",
        "label": "Brand",
-       "columns": 2
+       "in_list_view": 2
     },  
     {
       "fieldname": "exp_date",
       "fieldtype": "Data",
       "label": "Expiration Date",
-      "columns": 2
+      "in_list_view": 2
     },  
     {
        "fieldname": "last_digits",
        "fieldtype": "Data",
        "label": "Last Digits",
-       "columns": 2
+       "in_list_view": 2
     }
   ],
   "links": [],

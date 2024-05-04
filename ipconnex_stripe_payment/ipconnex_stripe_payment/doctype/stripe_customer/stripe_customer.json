@@ -33,11 +33,6 @@
       "label": "Auto Process Invoices"
    },
    {
-      "fieldname": "send_email",
-      "fieldtype": "Check",
-      "label": "Send Email"
-   },
-   {
     "fieldname": "get_stripe_id",
     "fieldtype": "Button",
     "label": "Get Stripe ID"
