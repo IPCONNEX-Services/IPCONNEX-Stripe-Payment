@@ -183,7 +183,8 @@ def processPayment(doctype,docname):
                             },
                         ],
                     })
-                    payment_entry.save(ignore_permissions=True)     
+                    payment_entry.save(ignore_permissions=True)  
+                    frappe.db.commit()   
                     return result
                 except: 
                     payment_method_id=""
@@ -330,7 +331,8 @@ def checkProcessInvoice(doc, method):
                             },
                         ],
                     })
-                    payment_entry.save(ignore_permissions=True)     
+                    payment_entry.save(ignore_permissions=True) 
+                    frappe.db.commit()    
                     frappe.msgprint("Success :Invoice Payed using Stripe #"+payment_intent.id)
                     return
                 except: 
