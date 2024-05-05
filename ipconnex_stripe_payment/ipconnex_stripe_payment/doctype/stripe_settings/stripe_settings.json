@@ -78,6 +78,18 @@
        "label": "Email Template",
        "options": "Email Template"
       }
+      ,
+      {
+       "fieldname": "section_break_9",
+       "fieldtype": "Section Break",
+       "label": ""
+      },
+      {
+       "fieldname": "html_hint",
+       "fieldtype": "Html",
+       "label": "Email template hint",
+       "value":  "<p><strong>DocType:</strong> {{doctype}} <br><strong>Name:</strong> {{name}} <br> <strong>Customer:</strong> {{customer}} <br><strong>Customer Name:</strong> {{customer_name}} <br><strong>Amount:</strong> {{amount}} <br><strong>Grand Total:</strong> {{grand_total}} <br></p>"
+      }
     ],
     "links": [],
     "modified": "2020-11-09 19:48:21.690285",
