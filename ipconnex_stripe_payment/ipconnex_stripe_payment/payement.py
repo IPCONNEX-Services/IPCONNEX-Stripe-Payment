@@ -114,11 +114,13 @@ def getCustomerCards(customer_id):
 @frappe.whitelist() 
 def processPayment(doctype,docname):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to"],order_by='modified', limit_page_length=0)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
         pay_to = stripe_settings[0]["pay_to"]
+        sender=stripe_settings[0]["email_sending_account"]
+        email_template=stripe_settings[0]["email_template"]
         invoice_doc=frappe.get_doc(doctype,docname)
         stripe_customers= frappe.get_all(
             "Stripe Customer",
@@ -184,11 +186,40 @@ def processPayment(doctype,docname):
                         ],
                     })
                     payment_entry.save(ignore_permissions=True)  
+                    if(email_template and sender ):
+                        template_doc=frappe.get_doc("Email Template",email_template)
+                        mail_template=template_doc.response
+                        mail_subject=template_doc.subject
+                        context={"amount":amount,"customer":invoice_doc.customer,"customer_name":invoice_doc.customer_name,"grand_total":invoice_doc.grand_total,"doctype":invoice_doc.doctype,"name":invoice_doc.name}
+                        mail_content =frappe.render_template(mail_template,context=context )
+                        mail_subject =frappe.render_template(mail_subject,context=context )
+                        frappe.sendmail(
+                                recipients=stripe_customer.email,
+                                sender=sender,
+                                subject=mail_subject,
+                                content=mail_content,     
+                                doctype=invoice_doc.doctype,
+                                name=invoice_doc.name,
+                                read_receipt= "0",
+                                print_letterhead= "1",
+                                now=True
+                                #now=True
+                        )
+                        frappe.get_doc({
+                            "doctype": "Communication",
+                            "communication_type": "Communication",
+                            "content": mail_content,
+                            "subject": mail_subject,
+                            "sent_or_received": "Sent",
+                            "recipients": stripe_customer.email,
+                            "sender": sender,
+                            "reference_doctype": invoice_doc.doctype,
+                            "reference_name": invoice_doc.name,
+                        }).insert(ignore_permissions=True)
                     frappe.db.commit()   
                     return result
                 except: 
                     payment_method_id=""
-
             return {"message":"Failed to process payment please check customer cards ","status":0}
         else :
             return {"message":"No Customer Found  ! please link the current Invoice's Customer to Stripe ","status":0}
@@ -266,12 +297,14 @@ def updateCards(client_token):
 
 def checkProcessInvoice(doc, method):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to"],order_by='modified', limit_page_length=0)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
             frappe.msgprint("Error : Please configure Stripe Settings first")
             return
         stripe.api_key = stripe_settings[0]["secret_key"]
         pay_to = stripe_settings[0]["pay_to"]
+        sender=stripe_settings[0]["email_sending_account"]
+        email_template=stripe_settings[0]["email_template"]
         stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name"],filters={"customer":doc.customer,"auto_process":1},order_by='modified', limit_page_length=0)
         if(len(stripe_customers)!=0 and len(doc.customer)!=0 )    :
             stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
@@ -332,6 +365,36 @@ def checkProcessInvoice(doc, method):
                         ],
                     })
                     payment_entry.save(ignore_permissions=True) 
+                    if(email_template and sender ):
+                        template_doc=frappe.get_doc("Email Template",email_template)
+                        mail_template=template_doc.response
+                        mail_subject=template_doc.subject
+                        context={"amount":amount,"customer":doc.customer,"customer_name":doc.customer_name,"grand_total":doc.grand_total,"doctype":doc.doctype,"name":doc.name}
+                        mail_content =frappe.render_template(mail_template,context=context )
+                        mail_subject =frappe.render_template(mail_subject,context=context )
+                        frappe.sendmail(
+                                recipients=stripe_customer.email,
+                                sender=sender,
+                                subject=mail_subject,
+                                content=mail_content,     
+                                doctype=doc.doctype,
+                                name=doc.name,
+                                read_receipt= "0",
+                                print_letterhead= "1",
+                                now=True
+                                #now=True
+                        )
+                        frappe.get_doc({
+                            "doctype": "Communication",
+                            "communication_type": "Communication",
+                            "content": mail_content,
+                            "subject": mail_subject,
+                            "sent_or_received": "Sent",
+                            "recipients": stripe_customer.email,
+                            "sender": sender,
+                            "reference_doctype": doc.doctype,
+                            "reference_name": doc.name,
+                        }).insert(ignore_permissions=True)
                     frappe.db.commit()    
                     frappe.msgprint("Success :Invoice Payed using Stripe #"+payment_intent.id)
                     return
@@ -344,4 +407,7 @@ def checkProcessInvoice(doc, method):
             frappe.msgprint("Error : No Customer Found  ! please link the current Invoice's Customer to Stripe")
     except Exception as e :
         frappe.msgprint("Error : "+str(e))
+
+
+
 

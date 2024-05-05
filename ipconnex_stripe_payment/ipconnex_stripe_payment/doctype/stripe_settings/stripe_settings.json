@@ -14,7 +14,8 @@
      "pay_to",
      "source",
      "section_break_5",
-     "header_img",
+
+
      "column_break_7",
      "redirect_url"
     ],
@@ -61,20 +62,22 @@
        "label": ""
       },
       {
-       "fieldname": "header_img",
-       "fieldtype": "Attach Image",
-       "label": "Header Image"
+       "fieldname": "email_sending_account",
+       "fieldtype": "Link",
+       "label": "Email Sending Account",
+       "options": "Email Account"
       },
-     {
-      "fieldname": "column_break_7",
-      "fieldtype": "Column Break",
-      "label": ""
-     },
-     {
-      "fieldname": "redirect_url",
-      "fieldtype": "Data",
-      "label": "Redirect URL"
-     }
+      {
+       "fieldname": "section_break_7",
+       "fieldtype": "Section Break",
+       "label": ""
+      },
+      {
+       "fieldname": "email_template",
+       "fieldtype": "Link",
+       "label": "Email Template",
+       "options": "Email Template"
+      }
     ],
     "links": [],
     "modified": "2020-11-09 19:48:21.690285",
