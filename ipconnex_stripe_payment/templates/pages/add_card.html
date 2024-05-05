@@ -190,6 +190,10 @@
                             title: 'Success',
                             text: res.message.message,
                         });
+                        setTimeout(function(){
+                                var newURL =window.location.href.split("/add_card")[0]+"/app";
+                                window.location.href = newURL;
+                        },5000)
                     }else{ 
                                                 Swal.fire({
                                                 icon: "warning",
