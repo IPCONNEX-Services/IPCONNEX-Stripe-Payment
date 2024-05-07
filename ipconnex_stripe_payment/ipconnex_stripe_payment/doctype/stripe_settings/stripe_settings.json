@@ -12,12 +12,10 @@
      "column_break_3",
      "secret_key",
      "pay_to",
-     "source",
      "section_break_5",
-
-
-     "column_break_7",
-     "redirect_url"
+     "email_sending_account",
+     "section_break_9",
+     "html_hint"
     ],
     "fields": [
      {
@@ -51,11 +49,6 @@
         "Mandatory":"Checked",
         "options":"Account"
        },
-       {
-         "fieldname": "source",
-         "fieldtype": "Data",
-         "label": "Source"
-      },
       {
        "fieldname": "section_break_5",
        "fieldtype": "Section Break",

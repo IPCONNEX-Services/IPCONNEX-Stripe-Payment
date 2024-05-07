@@ -187,6 +187,7 @@ def processPayment(doctype,docname):
                     })
                     payment_entry.save(ignore_permissions=True)  
                     if(email_template and sender ):
+                        email_sender= frappe.db.get_value('Email Account', sender ,'email_id')
                         template_doc=frappe.get_doc("Email Template",email_template)
                         mail_template=template_doc.response
                         mail_subject=template_doc.subject
@@ -195,7 +196,7 @@ def processPayment(doctype,docname):
                         mail_subject =frappe.render_template(mail_subject,context=context )
                         frappe.sendmail(
                                 recipients=stripe_customer.email,
-                                sender=sender,
+                                sender=email_sender,
                                 subject=mail_subject,
                                 content=mail_content,     
                                 doctype=invoice_doc.doctype,
@@ -212,7 +213,7 @@ def processPayment(doctype,docname):
                             "subject": mail_subject,
                             "sent_or_received": "Sent",
                             "recipients": stripe_customer.email,
-                            "sender": sender,
+                            "sender": email_sender,
                             "reference_doctype": invoice_doc.doctype,
                             "reference_name": invoice_doc.name,
                         }).insert(ignore_permissions=True)
@@ -366,6 +367,7 @@ def checkProcessInvoice(doc, method):
                     })
                     payment_entry.save(ignore_permissions=True) 
                     if(email_template and sender ):
+                        email_sender= frappe.db.get_value('Email Account', sender ,'email_id')
                         template_doc=frappe.get_doc("Email Template",email_template)
                         mail_template=template_doc.response
                         mail_subject=template_doc.subject
@@ -374,7 +376,7 @@ def checkProcessInvoice(doc, method):
                         mail_subject =frappe.render_template(mail_subject,context=context )
                         frappe.sendmail(
                                 recipients=stripe_customer.email,
-                                sender=sender,
+                                sender=email_sender,
                                 subject=mail_subject,
                                 content=mail_content,     
                                 doctype=doc.doctype,
@@ -391,7 +393,7 @@ def checkProcessInvoice(doc, method):
                             "subject": mail_subject,
                             "sent_or_received": "Sent",
                             "recipients": stripe_customer.email,
-                            "sender": sender,
+                            "sender": email_sender,
                             "reference_doctype": doc.doctype,
                             "reference_name": doc.name,
                         }).insert(ignore_permissions=True)
