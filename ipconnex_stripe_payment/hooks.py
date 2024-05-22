@@ -34,3 +34,6 @@ doc_events = {
         "on_submit": "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.checkProcessInvoice"
     }
 }
+
+app_install = "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.setup_install"
+
