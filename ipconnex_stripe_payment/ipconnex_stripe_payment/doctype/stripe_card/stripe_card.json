@@ -9,7 +9,6 @@
   "track_changes": 0,
   "field_order": [
     "card_id",
-    "addition_date",
     "brand",
     "exp_date",
     "last_digits"
@@ -20,12 +19,7 @@
      "fieldtype": "Data",
      "label": "Card ID",
      "in_list_view": 2
-    },    
-    {
-      "fieldname": "addition_date",
-      "fieldtype": "Date",
-      "label": "Addition Date"
-    },  
+    },
     {
        "fieldname": "brand",
        "fieldtype": "Data",
