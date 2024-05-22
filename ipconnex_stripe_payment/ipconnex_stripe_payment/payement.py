@@ -191,7 +191,16 @@ def processPayment(doctype,docname):
                         template_doc=frappe.get_doc("Email Template",email_template)
                         mail_template=template_doc.response
                         mail_subject=template_doc.subject
-                        context={"amount":amount,"customer":invoice_doc.customer,"customer_name":invoice_doc.customer_name,"grand_total":invoice_doc.grand_total,"doctype":invoice_doc.doctype,"name":invoice_doc.name}
+                        context={"amount":amount,
+                                 "customer":invoice_doc.customer,
+                                 "customer_name":invoice_doc.customer_name,
+                                 "grand_total":invoice_doc.grand_total,
+                                 "doctype":invoice_doc.doctype,
+                                 "name":invoice_doc.name,
+                                 "card_last_digits":stripe_card.last_digits,
+                                 "stripe_payment_ref":payment_intent.id,
+                                 "exp_card":stripe_card.last_digits
+                                 }
                         mail_content =frappe.render_template(mail_template,context=context )
                         mail_subject =frappe.render_template(mail_subject,context=context )
                         frappe.sendmail(
