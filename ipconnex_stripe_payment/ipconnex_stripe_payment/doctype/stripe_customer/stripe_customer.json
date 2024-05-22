@@ -7,15 +7,24 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+    "customer_details",
     "customer",
     "email",
     "get_stripe_id",
     "stripe_id",
     "cards_list",
-    "check_cards",
-    "token"
+    "check_cards", 
+    "add_new_credit_card",
+    "token",
+    "open_new_card_url",
+    "get_new_card_token"
  ],
  "fields": [
+   {
+     "fieldname": "customer_details",
+     "fieldtype": "Tab Break",
+     "label": "Customer Details"
+   },
    {
       "fieldname": "customer",
       "fieldtype": "Link",
@@ -38,6 +47,11 @@
     "label": "Get Stripe ID"
    }, 
    {
+     "fieldname": "cards",
+     "fieldtype": "Tab Break",
+     "label": "Cards"
+   },
+   {
     "fieldname": "stripe_id",
     "fieldtype": "Data",
     "label": "Stripe ID"
@@ -52,6 +66,11 @@
     "fieldname": "check_cards",
     "fieldtype": "Button",
     "label": "Check Cards"
+   },
+   {
+     "fieldname": "add_new_credit_card",
+     "fieldtype": "Tab Break",
+     "label": "Add New Credit Card"
    },
    {
       "fieldname": "card_token",
