@@ -441,8 +441,6 @@ def checkProcessInvoice(doc, method):
             frappe.msgprint("Error : Failed to process payment please check customer cards ")
             return
             
-        else :
-            frappe.msgprint("Error : No Customer Found  ! please link the current Invoice's Customer to Stripe")
     except Exception as e :
         frappe.msgprint("Error : "+str(e))
 
