@@ -23,3 +23,10 @@ class StripeSettings(Document):
         is_admin = "System Manager" in user_roles or "Accounts Manager" in user_roles
         if not is_admin:
             frappe.throw("The current user does not have the required admin role to edit Stripe Settings.")
+
+    def before_insert(self):
+        user_roles = frappe.get_all("Has Role", filters={"parent": frappe.session.user}, fields=["role"])
+        user_roles = [role.role for role in user_roles]
+        is_admin = "System Manager" in user_roles or "Accounts Manager" in user_roles
+        if not is_admin:
+            frappe.throw("The current user does not have the required admin role to create Stripe Settings.")
