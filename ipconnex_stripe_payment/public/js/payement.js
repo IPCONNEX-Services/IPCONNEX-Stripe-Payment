@@ -49,7 +49,6 @@ frappe.ui.form.on('Sales Order', {
                 frappe.msgprint('Fill empty invoice values first!');
                 $('button[data-label="Pay%20Invoice"]').prop('disabled', false);
                 return 0;
-
             }    
             frappe.call({
                 method:"ipconnex_stripe_payment.ipconnex_stripe_payment.payement.processPayment",

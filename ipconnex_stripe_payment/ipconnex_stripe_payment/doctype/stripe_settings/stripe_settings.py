@@ -23,7 +23,3 @@ class StripeSettings(Document):
         is_admin = "System Manager" in user_roles or "Accounts Manager" in user_roles
         if not is_admin:
             frappe.throw("The current user does not have the required admin role to edit Stripe Settings.")
-
-            
-    def validate(self):
-        self.get()
