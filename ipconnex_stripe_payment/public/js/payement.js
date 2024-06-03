@@ -81,8 +81,8 @@ frappe.ui.form.on('Sales Order', {
 });
 
 frappe.ui.form.on('Stripe Settings', { 
-    onload: function(frm) {
-        if (frappe.user.has_role('Administrator'))
+    onload: function(frm) { 
+        if (  frappe.user_roles.includes("System Manager")  || frappe.user_roles.includes("Accounts Manager") )
             { frm.set_df_property('secret_key', 'hidden', 0); } 
         else 
             { frm.set_df_property('secret_key', 'hidden', 1); } 
