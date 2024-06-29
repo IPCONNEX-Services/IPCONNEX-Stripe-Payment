@@ -27,8 +27,6 @@ def setup_install():
         """fail to create template"""   
 
     # Add Auto Process Field to sales Invoice
-
-    
     doctype = "Sales Invoice"
     field_name = "process_at_submit"
     field_type="Check"
@@ -41,7 +39,7 @@ def setup_install():
                 'parent': doctype, 
                 'parentfield': 'fields', 
                 'parenttype': 'DocType', 
-                'idx': 2, 
+                'idx': 5, 
                 'fieldname': 'process_at_submit', 
                 'label': 'Process At Submit', 
                 'fieldtype': 'Check',  
