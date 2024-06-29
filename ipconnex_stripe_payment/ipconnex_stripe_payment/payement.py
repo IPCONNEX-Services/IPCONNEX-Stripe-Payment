@@ -24,9 +24,33 @@ def setup_install():
                  })
             email_template_doc.save(ignore_permissions=True)
     except:
-        """fail to create supplier"""   
+        """fail to create template"""   
 
+    # Define the doctype and field to add
+    doctype = "Sales Invoice"
+    field_name = "process_at_submit"
+    field_type="Check"
+    meta=frappe.get_meta(doctype)
+    existing_fields=[field.fieldname for field in frappe.get_meta(doctype).fields ]
 
+    if field_name not in existing_fields:
+        
+        field_doc=frappe.get_doc({
+                'parent': doctype, 
+                'parentfield': 'fields', 
+                'parenttype': 'DocType', 
+                'idx': 2, 
+                'fieldname': 'process_at_submit', 
+                'label': 'Process At Submit', 
+                'fieldtype': 'Check',  
+                'doctype': 'DocField'
+        })
+        field_doc.insert(ignore_permissions = True)
+
+        
+        frappe.response['message'] =f"Field '{field_name}' added successfully to '{doctype}'."
+    else:
+        frappe.response['message'] = f"Field '{field_name}' already exists in '{doctype}'."
 
 @frappe.whitelist() 
 def generateClientSecret(amount,currency,methods):
@@ -333,8 +357,8 @@ def checkProcessInvoice(doc, method):
         pay_to = stripe_settings[0]["pay_to"]
         sender=stripe_settings[0]["email_sending_account"]
         email_template=stripe_settings[0]["email_template"]
-        stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name"],filters={"customer":doc.customer,"auto_process":1},order_by='modified', limit_page_length=0)
-        if(len(stripe_customers)!=0 and len(doc.customer)!=0 )    :
+        stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","auto_process"],filters={"customer":doc.customer},order_by='modified', limit_page_length=0)
+        if( (len(stripe_customers)!=0 and len(doc.customer)!=0 ) and ( stripe_customers[0].auto_process or doc.process_at_submit ) )   :
             stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
             customer_id=stripe_customer.stripe_id
             if( len(stripe_customer.cards_list)==0):
