@@ -26,7 +26,9 @@ def setup_install():
     except:
         """fail to create template"""   
 
-    # Define the doctype and field to add
+    # Add Auto Process Field to sales Invoice
+
+    
     doctype = "Sales Invoice"
     field_name = "process_at_submit"
     field_type="Check"
@@ -47,11 +49,24 @@ def setup_install():
         })
         field_doc.insert(ignore_permissions = True)
 
-        
-        frappe.response['message'] =f"Field '{field_name}' added successfully to '{doctype}'."
-    else:
-        frappe.response['message'] = f"Field '{field_name}' already exists in '{doctype}'."
 
+    # Create link
+    links_list=frappe.get_all(
+                                "DocType Link",
+                                filters={"link_doctype": "Stripe Customer","parent":"Customer" },
+                                fields=["name"])
+    if( len(links_list)==0):
+        link_doc=frappe.get_doc({
+            "parent":"Customer",
+            "parentfield":"links",
+            "parenttype":"Doctype",
+            "idx":1,
+            "link_doctype":"Stripe Customer",
+            "link_fieldname":"customer",
+            "group":"Payments",
+            "doctype":"DocType Link"
+        })
+        link_doc.insert(ignore_permissions = True)
 @frappe.whitelist() 
 def generateClientSecret(amount,currency,methods):
     currency='cad'
