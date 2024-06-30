@@ -28,7 +28,7 @@ def setup_install():
 
     # Add Auto Process Field to sales Invoice
     doctype = "Sales Invoice"
-    field_name = "process_at_submit"
+    field_name = "process_on_submit"
     field_type="Check"
     meta=frappe.get_meta(doctype)
     existing_fields=[field.fieldname for field in frappe.get_meta(doctype).fields ]
@@ -40,8 +40,8 @@ def setup_install():
                 'parentfield': 'fields', 
                 'parenttype': 'DocType', 
                 'idx': 5, 
-                'fieldname': 'process_at_submit', 
-                'label': 'Process At Submit', 
+                'fieldname': 'process_on_submit', 
+                'label': 'Process On Submit', 
                 'fieldtype': 'Check',  
                 'doctype': 'DocField'
         })
@@ -371,7 +371,7 @@ def checkProcessInvoice(doc, method):
         sender=stripe_settings[0]["email_sending_account"]
         email_template=stripe_settings[0]["email_template"]
         stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","auto_process"],filters={"customer":doc.customer},order_by='modified', limit_page_length=0)
-        if( (len(stripe_customers)!=0 and len(doc.customer)!=0 ) and ( stripe_customers[0].auto_process or doc.process_at_submit ) )   :
+        if( (len(stripe_customers)!=0 and len(doc.customer)!=0 ) and ( stripe_customers[0].auto_process or doc.process_on_submit ) )   :
             stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
             customer_id=stripe_customer.stripe_id
             if( len(stripe_customer.cards_list)==0):
