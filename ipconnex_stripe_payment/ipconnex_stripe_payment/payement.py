@@ -33,13 +33,11 @@ def setup_install():
     meta=frappe.get_meta(doctype)
     existing_fields=[field.fieldname for field in frappe.get_meta(doctype).fields ]
 
-    if field_name not in existing_fields:
-        
+    if field_name not in existing_fields and False:
         field_doc=frappe.get_doc({
                 'parent': doctype, 
                 'parentfield': 'fields', 
                 'parenttype': 'DocType', 
-                'idx': 5, 
                 'fieldname': field_name, 
                 'label': 'Process On Submit', 
                 'fieldtype': field_type,  
