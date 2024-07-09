@@ -325,11 +325,13 @@ def getEmail(customer):
 @frappe.whitelist(allow_guest=True)
 def updateCards(client_token):
     try:
-        frappe.flags.ignore_permissions = True
+        line=328
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
+        
+        line=334
         stripe_customers=frappe.db.get_all("Stripe Customer",
                     filters={"card_token":client_token },
                     fields=["name","email","card_token","stripe_id"],order_by='modified', limit_page_length=0)
@@ -341,6 +343,7 @@ def updateCards(client_token):
             type="card"  
         )
         card_details = []
+        line=346
         stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
         
         stripe_customer.save()
@@ -352,12 +355,14 @@ def updateCards(client_token):
                 "card_id": pm.id  
             }
             card_details.append(card_info)
+        line=358
         stripe_customer.set("cards_list", card_details) 
         stripe_customer.card_token=""
+        line=361
         stripe_customer.save(ignore_permissions=True)
         return {"status":1,"message":"Cards Updated !"}
     except Exception as e :
-        return {"message":"Please contact the website Administrator"+str(e),"status":0}
+        return {"message":str(line)+"Please contact the website Administrator"+str(e),"status":0}
 
 def checkProcessInvoice(doc, method):
     try:
