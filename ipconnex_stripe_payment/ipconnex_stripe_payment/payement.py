@@ -352,8 +352,18 @@ def updateCards(client_token):
             }
             card_details.append(card_info)
         stripe_customer.set("cards_list", card_details) 
-        stripe_customer.card_token=""
         stripe_customer.save(ignore_permissions=True)
+        try :
+            stripe.api_key = stripe_settings[0]["secret_key"]
+            setup_intent = stripe.SetupIntent.create(
+                customer=stripe_customer.stripe_id,
+                payment_method_types=['card']
+            )
+            stripe_customer.card_token=setup_intent.client_secret
+            stripe_customer.save(ignore_permissions=True)
+        except:
+            "Token Not Updated"
+
         return {"status":1,"message":"Cards Updated !"}
     except Exception as e :
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
