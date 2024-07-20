@@ -504,9 +504,6 @@ def hourly_process_payment():
                 "modified":["<=",str(t)],
                 "docstatus":1,
                 "status": ["in", ["Partly Paid", "Unpaid", "Overdue"]]
-                
-                
-                
                 },order_by='modified', limit_page_length=0)
             sales.extend([{"name":si.name,"doctype":"Sales Invoice"} for si in customer_si])
             customer_so=frappe.db.get_all("Sales Order",fields=["name"],filters={
