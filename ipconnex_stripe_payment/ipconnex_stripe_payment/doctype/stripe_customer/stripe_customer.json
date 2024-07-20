@@ -48,7 +48,7 @@
     "fieldname": "process_delay",
     "fieldtype": "Int",
     "label": "Process Delay (Hours)",
-    "depends_on" :"eval:!doc.auto_process",
+    "depends_on" :"eval:doc.auto_process",
     "default": 0
    }, 
    {
