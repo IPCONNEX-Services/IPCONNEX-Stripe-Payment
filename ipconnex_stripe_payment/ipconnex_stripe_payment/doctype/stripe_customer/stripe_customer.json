@@ -11,6 +11,7 @@
    "customer", 
    "email", 
    "auto_process",
+   "process_delay",
    "get_stripe_id", 
    "stripe_id",
    "tab_cards",

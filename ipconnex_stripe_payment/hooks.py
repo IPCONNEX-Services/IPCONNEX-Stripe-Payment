@@ -23,8 +23,10 @@ doctype_js = {
 # ---------------
 
 scheduler_events = {
+    "hourly": [
+        "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.hourly_process_payment"
+    ]
 }
-
 
 doc_events = {
     "Sales Invoice": {

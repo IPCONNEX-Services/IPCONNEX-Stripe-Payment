@@ -379,9 +379,9 @@ def checkProcessInvoice(doc, method):
         pay_to = stripe_settings[0]["pay_to"]
         sender=stripe_settings[0]["email_sending_account"]
         email_template=stripe_settings[0]["email_template"]
-        stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","auto_process"],filters={"customer":doc.customer},order_by='modified', limit_page_length=0)
+        stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","auto_process","process_delay"],filters={"customer":doc.customer},order_by='modified', limit_page_length=0)
         
-        if( (len(stripe_customers)!=0 and len(doc.customer)!=0 ) and ( stripe_customers[0].auto_process )  )   :
+        if( (len(stripe_customers)!=0 and len(doc.customer)!=0 ) and ( stripe_customers[0].auto_process and stripe_customers[0].process_delay==0)  )   :
             stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
             customer_id=stripe_customer.stripe_id
             if( len(stripe_customer.cards_list)==0):
@@ -491,6 +491,33 @@ def checkProcessInvoice(doc, method):
     except Exception as e :
         frappe.msgprint("Error : "+str(e))
 
-
-
-
+@frappe.whitelist()
+def hourly_process_payment():
+    current_time = frappe.utils.now_datetime()
+    stripe_customers=frappe.db.get_all("Stripe Customer",fields=["customer","process_delay"],filters={"auto_process":1},order_by='modified', limit_page_length=0)
+    for sc in stripe_customers:
+        if sc.process_delay!=0:
+            sales=[]
+            t= frappe.utils.add_to_date(current_time, hours=sc.process_delay*(-1))
+            customer_si=frappe.db.get_all("Sales Invoice",fields=["name"],filters={
+                "customer": sc.customer  ,
+                "modified":[">=",str(t)],
+                "docstatus":1,
+                "status": ["in", ["Partly Paid", "Unpaid", "Overdue"]]
+                
+                
+                
+                },order_by='modified', limit_page_length=0)
+            sales.extend([{"name":si.name,"doctype":"Sales Invoice"} for si in customer_si])
+            customer_so=frappe.db.get_all("Sales Order",fields=["name"],filters={
+                "customer": sc.customer  ,
+                "modified":[">=",str(t)],
+                "docstatus":1,
+                "status": ["in", ["Partly Paid", "Unpaid", "Overdue"]]
+                },order_by='modified', limit_page_length=0)
+            sales.extend([{"name":so.name,"doctype":"Sales Order"} for so in customer_so])
+            for sale in sales :
+                try:
+                    processPayment(sale["doctype"],sale["name"])
+                except:
+                    "failed to process current invoice"
