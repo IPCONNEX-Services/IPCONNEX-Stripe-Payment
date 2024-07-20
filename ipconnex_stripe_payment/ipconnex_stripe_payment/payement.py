@@ -501,7 +501,7 @@ def hourly_process_payment():
             t= frappe.utils.add_to_date(current_time, hours=sc.process_delay*(-1))
             customer_si=frappe.db.get_all("Sales Invoice",fields=["name"],filters={
                 "customer": sc.customer  ,
-                "modified":[">=",str(t)],
+                "modified":["<=",str(t)],
                 "docstatus":1,
                 "status": ["in", ["Partly Paid", "Unpaid", "Overdue"]]
                 
@@ -511,7 +511,7 @@ def hourly_process_payment():
             sales.extend([{"name":si.name,"doctype":"Sales Invoice"} for si in customer_si])
             customer_so=frappe.db.get_all("Sales Order",fields=["name"],filters={
                 "customer": sc.customer  ,
-                "modified":[">=",str(t)],
+                "modified":["<=",str(t)],
                 "docstatus":1,
                 "status": ["in", ["Partly Paid", "Unpaid", "Overdue"]]
                 },order_by='modified', limit_page_length=0)
