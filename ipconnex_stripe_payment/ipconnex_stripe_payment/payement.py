@@ -496,25 +496,24 @@ def hourly_process_payment():
     current_time = frappe.utils.now_datetime()
     stripe_customers=frappe.db.get_all("Stripe Customer",fields=["customer","process_delay"],filters={"auto_process":1},order_by='modified', limit_page_length=0)
     for sc in stripe_customers:
-        if sc.process_delay!=0:
-            sales=[]
-            t= frappe.utils.add_to_date(current_time, hours=sc.process_delay*(-1))
-            customer_si=frappe.db.get_all("Sales Invoice",fields=["name"],filters={
-                "customer": sc.customer  ,
-                "modified":["<=",str(t)],
-                "docstatus":1,
-                "status": ["in", ["Partly Paid", "Unpaid", "Overdue"]]
-                },order_by='modified', limit_page_length=0)
-            sales.extend([{"name":si.name,"doctype":"Sales Invoice"} for si in customer_si])
-            customer_so=frappe.db.get_all("Sales Order",fields=["name"],filters={
-                "customer": sc.customer  ,
-                "modified":["<=",str(t)],
-                "docstatus":1,
-                "status": ["in", ["Partly Paid", "Unpaid", "Overdue"]]
-                },order_by='modified', limit_page_length=0)
-            sales.extend([{"name":so.name,"doctype":"Sales Order"} for so in customer_so])
-            for sale in sales :
-                try:
-                    processPayment(sale["doctype"],sale["name"])
-                except:
-                    "failed to process current invoice"
+        sales=[]
+        t= frappe.utils.add_to_date(current_time, hours=max(1,sc.process_delay)*(-1))
+        customer_si=frappe.db.get_all("Sales Invoice",fields=["name"],filters={
+            "customer": sc.customer  ,
+            "modified":["<=",str(t)],
+            "docstatus":1,
+            "status": ["in", ["Partly Paid", "Unpaid", "Overdue"]]
+            },order_by='modified', limit_page_length=0)
+        sales.extend([{"name":si.name,"doctype":"Sales Invoice"} for si in customer_si])
+        customer_so=frappe.db.get_all("Sales Order",fields=["name"],filters={
+            "customer": sc.customer  ,
+            "modified":["<=",str(t)],
+            "docstatus":1,
+            "status": ["in", ["Partly Paid", "Unpaid", "Overdue"]]
+            },order_by='modified', limit_page_length=0)
+        sales.extend([{"name":so.name,"doctype":"Sales Order"} for so in customer_so])
+        for sale in sales :
+            try:
+                processPayment(sale["doctype"],sale["name"])
+            except:
+                "failed to process current invoice"
