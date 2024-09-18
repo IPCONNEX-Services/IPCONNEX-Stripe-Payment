@@ -58,8 +58,9 @@
     },
     {
       "fieldname": "subscription_list",
-      "fieldtype": "Data",
-      "label": "subscription_list"
+      "fieldtype": "Table",
+      "label": "subscription_list",
+      "options": "Subscription Item"
     }
   ],
   "links": [],
