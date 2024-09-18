@@ -1,0 +1,88 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "autoname": "format:{}",
+  "creation": "2023-02-15 00:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "user_id",
+    "stripe_customer",
+    "auto_subscription",
+    "auto_subscription_type",
+    "last_sub_day",
+    "status",
+    "account_status",
+    "subscription_list"
+  ],
+  "fields": [
+    {
+      "fieldname": "user_id",
+      "fieldtype": "Link",
+      "label": "user_id",
+      "options": "User"
+    },
+    {
+      "fieldname": "stripe_customer",
+      "fieldtype": "Link",
+      "label": "stripe_customer",
+      "options": "Stripe Customer"
+    },
+    {
+      "fieldname": "auto_subscription",
+      "fieldtype": "Check",
+      "label": "Auto Subscription"
+    },
+    {
+      "fieldname": "auto_subscription_type",
+      "fieldtype": "Link",
+      "label": "Auto Subscription Type",
+      "options": "Subscription Type"
+    },
+    {
+      "fieldname": "last_sub_day",
+      "fieldtype": "Date",
+      "label": "Last Subscription Day"
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Premium\nGuest"
+    },
+    {
+      "fieldname": "account_status",
+      "fieldtype": "Button",
+      "label": "Get Stripe ID"
+    },
+    {
+      "fieldname": "subscription_list",
+      "fieldtype": "Data",
+      "label": "subscription_list"
+    }
+  ],
+  "links": [],
+  "modified": "2023-02-15 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "IPCONNEX Stripe Payment",
+  "name": "User Subscription",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "quick_entry": 1,
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}
