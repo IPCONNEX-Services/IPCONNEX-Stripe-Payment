@@ -523,6 +523,14 @@ def hourly_process_payment():
 
 @frappe.whitelist()
 def process_subscription(user_sub,sub_type):
+    stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='modified', limit_page_length=0)
+    if(len(stripe_settings)==0):
+        frappe.msgprint("Error : Please configure Stripe Settings first")
+        return
+    stripe.api_key = stripe_settings[0]["secret_key"]
+    pay_to = stripe_settings[0]["pay_to"]
+    sender=stripe_settings[0]["email_sending_account"]
+    email_template=stripe_settings[0]["email_template"]
     user_sub_doc=frappe.get_doc("User Subscription",user_sub)
     sub_type_doc=frappe.get_doc("Subscription Type",sub_type)
     stripe_customer_doc=frappe.get_doc("Stripe Customer",user_sub_doc.stripe_customer)
@@ -538,12 +546,8 @@ def process_subscription(user_sub,sub_type):
         'customer': stripe_customer_doc.customer,
         'posting_date': posting_date ,
         'due_date': due_date,
-        #"currency": invoice_dict["currency_code"],
         "conversion_rate": 1,
-        #"price_list_currency": invoice_dict["currency_code"],
         "plc_conversion_rate": 1,
-        #"tc_name":'Canada CAD',
-        #"payment_terms_template":'NET 15',
         # TODO "docstatus": 1,
         'items': [
             {
@@ -556,6 +560,68 @@ def process_subscription(user_sub,sub_type):
                 'amount': rate ,
             }]
     })
+
     invoice_doc.set_missing_values()
     invoice_doc.calculate_taxes_and_totals()
     invoice_doc.save(ignore_permissions=True)
+
+    to_pay = invoice_doc.outstanding_amount
+    if(invoice_doc.disable_rounded_total):
+        to_pay =min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
+
+
+    for stripe_card in stripe_customer_doc.cards_list:
+        try:
+            payment_method_id=stripe_card.card_id
+            amount_cent=int(to_pay *100)
+            payment_intent = stripe.PaymentIntent.create(
+                customer=stripe_customer_doc.stripe_id,  
+                payment_method=payment_method_id, 
+                amount=amount_cent,  
+                currency=invoice_doc.currency.lower(),  
+                description=invoice_doc.doctype+"#"+invoice_doc.docname,
+                confirm=True,  
+                automatic_payment_methods={
+                    "enabled": True,
+                    "allow_redirects": "never"
+                }
+            )
+            invoice_doc.submit()
+            result= {"message":"Invoice Payed using Stripe #"+payment_intent.id,"status":1}
+            payment_entry = frappe.get_doc({
+                "doctype": "Payment Entry",
+                'party_type': 'Customer',
+                'party': invoice_doc.customer,
+                'paid_amount': to_pay,
+                'received_amount': to_pay,
+                'target_exchange_rate': 1.0,
+                "paid_from": invoice_doc.debit_to,
+                'paid_to_account_currency': invoice_doc.currency,
+                "paid_from_account_currency": invoice_doc.currency,
+                'paid_to': pay_to,
+                "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
+                "reference_date": posting_date ,
+                'company': invoice_doc.company,
+                'mode_of_payment': 'Credit Card',
+                "status": "Submitted",
+                "docstatus": 1,
+                "references": [
+                    {
+                        "reference_doctype": invoice_doc.doctype,
+                        "reference_name": invoice_doc.name,
+                        "total_amount": invoice_doc.grand_total,
+                        "allocated_amount":to_pay,
+                        "exchange_rate": 1.0,
+                        "exchange_gain_loss": 0.0,
+                        "parentfield": "references",
+                        "parenttype": "Payment Entry",
+                        "doctype": "Payment Entry Reference",
+                    },
+                ],
+            })
+            payment_entry.save(ignore_permissions=True)  
+            frappe.db.commit()   
+            return result
+        except: 
+            payment_method_id=""
+    frappe.delete_doc("Sales Invoice", invoice_doc.name)
