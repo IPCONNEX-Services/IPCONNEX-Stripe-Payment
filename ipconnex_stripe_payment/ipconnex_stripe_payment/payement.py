@@ -528,7 +528,10 @@ def process_subscription(user_sub,sub_type):
     stripe_customer_doc=frappe.get_doc("Stripe Customer",user_sub_doc.stripe_customer)
     posting_date= frappe.utils.nowdate()
     due_date= frappe.utils.add_days(posting_date, +30)
-    
+    rate=20
+    item_prices_list=frappe.get_all("Item Price",fields=["price_list_rate"],filters={"item_code":"Microsoft 365 Business Premium","selling":1})
+    if(len(item_prices_list)!=0):
+        rate=item_prices_list[0]["price_list_rate"]
     invoice_doc = frappe.get_doc({
         'doctype': 'Sales Invoice',
         'company':sub_type_doc.company,
@@ -549,8 +552,8 @@ def process_subscription(user_sub,sub_type):
                 'qty': 1,
                 'income_account': sub_type_doc.income_account,
                 'conversion_factor': 1.0,
-                #'rate': ,
-                #'amount': 0 ,
+                'rate': rate,
+                'amount': rate ,
             }]
     })
     invoice_doc.set_missing_values()
