@@ -20,13 +20,13 @@
     {
       "fieldname": "user_id",
       "fieldtype": "Link",
-      "label": "user_id",
+      "label": "User",
       "options": "User"
     },
     {
       "fieldname": "stripe_customer",
       "fieldtype": "Link",
-      "label": "stripe_customer",
+      "label": "Stripe Customer",
       "options": "Stripe Customer"
     },
     {
@@ -59,7 +59,7 @@
     {
       "fieldname": "subscription_list",
       "fieldtype": "Table",
-      "label": "subscription_list",
+      "label": "Subscriptions",
       "options": "Subscription Item"
     }
   ],

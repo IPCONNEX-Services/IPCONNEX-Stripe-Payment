@@ -65,7 +65,7 @@
   ],
   "istable": 1,
   "list_view": {
-    "fields": ["from", "to", "sales_invoice", "payment_entry"]
+    "fields": ["type", "from", "to", "sales_invoice", "payment_entry"]
   },
   "sort_field": "modified",
   "sort_order": "DESC"
