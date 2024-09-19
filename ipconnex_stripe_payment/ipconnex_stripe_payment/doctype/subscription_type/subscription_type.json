@@ -6,7 +6,7 @@
   "doctype": "DocType",
   "editable_grid": 1,
   "engine": "InnoDB",
-  "field_order": ["label", "status", "item", "duration"],
+  "field_order": ["label", "status", "item", "duration", "income_account"],
   "fields": [
     {
       "fieldname": "label",
@@ -29,6 +29,12 @@
       "fieldname": "duration",
       "fieldtype": "Int",
       "label": "Duration (days)"
+    },
+    {
+      "fieldname": "income_account",
+      "fieldtype": "Link",
+      "label": "Income Account",
+      "options": "Account"
     }
   ],
   "links": [],
