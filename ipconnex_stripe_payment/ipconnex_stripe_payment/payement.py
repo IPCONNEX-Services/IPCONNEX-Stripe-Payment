@@ -526,12 +526,15 @@ def process_subscription(user_sub,sub_type):
     user_sub_doc=frappe.get_doc("User Subscription",user_sub)
     sub_type_doc=frappe.get_doc("Subscription Type",sub_type)
     stripe_customer_doc=frappe.get_doc("Stripe Customer",user_sub_doc.stripe_customer)
+    posting_date= frappe.utils.nowdate()
+    due_date= frappe.utils.add_days(posting_date, +30)
+    
     invoice_doc = frappe.get_doc({
         'doctype': 'Sales Invoice',
         'company':sub_type_doc.company,
         'customer': stripe_customer_doc.customer,
-        'due_date': '2024-09-19' ,
-        "posting_date": '2024-10-19' ,
+        'posting_date': posting_date ,
+        'due_date': due_date,
         #"currency": invoice_dict["currency_code"],
         "conversion_rate": 1,
         #"price_list_currency": invoice_dict["currency_code"],
