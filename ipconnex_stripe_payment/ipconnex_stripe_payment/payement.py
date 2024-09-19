@@ -632,7 +632,9 @@ def process_subscription(user_sub,sub_type):
                 "to":to_date ,
                 "sales_invoice":invoice_doc.name, 
                 "payment_entry":payment_entry.name
+
             })
+            user_sub_doc.status="Premium"
             user_sub_doc.save(ignore_permissions=True)  
             return result
         except: 
