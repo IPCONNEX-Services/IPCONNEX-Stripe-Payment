@@ -517,3 +517,39 @@ def hourly_process_payment():
                 processPayment(sale["doctype"],sale["name"])
             except:
                 "failed to process current invoice"
+
+
+
+
+@frappe.whitelist()
+def process_subscription(user_sub,sub_type):
+    user_sub_doc=frappe.get_doc("User Subscription",user_sub)
+    sub_type_doc=frappe.get_doc("Subscription Type",sub_type)
+    stripe_customer_doc=frappe.get_doc("Stripe Customer",user_sub_doc.stripe_customer)
+    invoice_doc = frappe.get_doc({
+        'doctype': 'Sales Invoice',
+        'company':sub_type_doc.company,
+        'customer': stripe_customer_doc.customer,
+        'due_date': '2024-09-19' ,
+        "posting_date": '2024-10-19' ,
+        #"currency": invoice_dict["currency_code"],
+        "conversion_rate": 1,
+        #"price_list_currency": invoice_dict["currency_code"],
+        "plc_conversion_rate": 1,
+        #"tc_name":'Canada CAD',
+        #"payment_terms_template":'NET 15',
+        # TODO "docstatus": 1,
+        'items': [
+            {
+                'item_code': sub_type_doc.item,
+                'item_name': sub_type_doc.item,
+                'qty': 1,
+                'income_account': sub_type_doc.income_account,
+                'conversion_factor': 1.0,
+                #'rate': ,
+                #'amount': 0 ,
+            }]
+    })
+    invoice_doc.set_missing_values()
+    invoice_doc.calculate_taxes_and_totals()
+    invoice_doc.save(ignore_permissions=True)
