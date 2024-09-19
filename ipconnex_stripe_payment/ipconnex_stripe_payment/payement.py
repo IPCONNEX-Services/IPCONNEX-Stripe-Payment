@@ -621,6 +621,19 @@ def process_subscription(user_sub,sub_type):
             })
             payment_entry.save(ignore_permissions=True)  
             frappe.db.commit()   
+            
+
+
+            from_date=max(frappe.utils.nowdate() ,user_sub_doc.last_sub_day )
+            to_date=frappe.utils.add_days(from_date, sub_type_doc.duration)
+            user_sub_doc.subscription_list.insert(0,{
+                "type":sub_type, 
+                "from":from_date, 
+                "to":to_date ,
+                "sales_invoice":invoice_doc.name, 
+                "payment_entry":payment_entry.name
+            })
+            user_sub_doc.save(ignore_permissions=True)  
             return result
         except: 
             payment_method_id=""
