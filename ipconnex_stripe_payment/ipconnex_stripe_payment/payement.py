@@ -637,6 +637,7 @@ def process_subscription(user_sub,sub_type):
             user_sub_doc.status="Premium"
             user_sub_doc.save(ignore_permissions=True)  
             return result
-        except: 
+        except Exception : 
             payment_method_id=""
     frappe.delete_doc("Sales Invoice", invoice_doc.name)
+    result= {"message":"Echec","status":0}
