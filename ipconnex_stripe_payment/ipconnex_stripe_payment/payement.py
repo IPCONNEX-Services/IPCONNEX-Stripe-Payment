@@ -622,8 +622,9 @@ def process_subscription(user_sub,sub_type):
             frappe.db.commit()   
             
 
-
-            from_date=max(frappe.utils.nowdate() ,user_sub_doc.last_sub_day )
+            from_date=frappe.utils.nowdate() 
+            if(user_sub_doc.last_sub_day ):
+                from_date=max(frappe.utils.nowdate() ,user_sub_doc.last_sub_day )
             to_date=frappe.utils.add_days(from_date, sub_type_doc.duration)
             user_sub_doc.subscription_list.insert(0,{
                 "type":sub_type, 
