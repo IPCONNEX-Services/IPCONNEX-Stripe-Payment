@@ -632,19 +632,15 @@ def process_subscription(user_sub,sub_type):
                 "to":to_date ,
                 "sales_invoice":invoice_doc.name, 
                 "payment_entry":payment_entry.name
-
             }]
+            
             for sub in  user_sub_doc.subscription_list:
-                subscription_list.append({
-                    "type": sub["type"], 
-                    "from": sub["from"], 
-                    "to":sub["to"] ,
-                    "sales_invoice":sub["sales_invoice"], 
-                    "payment_entry":sub["payment_entry"]
-
-                })
+                subscription_list.append(sub.as_dict())
+                
+            user_sub_doc=frappe.get_doc("User Subscription",user_sub)
             user_sub_doc.set("subscription_list", subscription_list) 
             user_sub_doc.status="Premium"
+            user_sub_doc.last_sub_day=to_date 
             user_sub_doc.save(ignore_permissions=True)  
             return result
         except Exception as e: 
