@@ -570,6 +570,7 @@ def process_subscription(user_sub,sub_type):
         to_pay =min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
 
     for stripe_card in stripe_customer_doc.cards_list:
+        try:
             payment_method_id=stripe_card.card_id
             amount_cent=int(to_pay *100)
             payment_intent = stripe.PaymentIntent.create(
@@ -577,7 +578,7 @@ def process_subscription(user_sub,sub_type):
                 payment_method=payment_method_id, 
                 amount=amount_cent,  
                 currency=invoice_doc.currency.lower(),  
-                description=invoice_doc.doctype+"#"+invoice_doc.docname,
+                description=invoice_doc.doctype+"#"+invoice_doc.name,
                 confirm=True,  
                 automatic_payment_methods={
                     "enabled": True,
@@ -619,6 +620,9 @@ def process_subscription(user_sub,sub_type):
             })
             payment_entry.save(ignore_permissions=True)  
             frappe.db.commit()   
+            
+
+
             from_date=max(frappe.utils.nowdate() ,user_sub_doc.last_sub_day )
             to_date=frappe.utils.add_days(from_date, sub_type_doc.duration)
             user_sub_doc.subscription_list.insert(0,{
@@ -632,6 +636,8 @@ def process_subscription(user_sub,sub_type):
             user_sub_doc.status="Premium"
             user_sub_doc.save(ignore_permissions=True)  
             return result
+        except Exception as e: 
+            payment_method_id=""
+            result= {"message":"Echec"+e,"status":0}
     frappe.delete_doc("Sales Invoice", invoice_doc.name)
-    result= {"message":"Echec","status":0}
     return result
