@@ -626,19 +626,29 @@ def process_subscription(user_sub,sub_type):
             if(user_sub_doc.last_sub_day ):
                 from_date=max(frappe.utils.nowdate() ,user_sub_doc.last_sub_day )
             to_date=frappe.utils.add_days(from_date, sub_type_doc.duration)
-            user_sub_doc.subscription_list.insert(0,{
+            subscription_list=[{
                 "type":sub_type, 
                 "from":from_date, 
                 "to":to_date ,
                 "sales_invoice":invoice_doc.name, 
                 "payment_entry":payment_entry.name
 
-            })
+            }]
+            for sub in  user_sub_doc.subscription_list:
+                subscription_list.append({
+                    "type": sub["type"], 
+                    "from": sub["from"], 
+                    "to":sub["to"] ,
+                    "sales_invoice":sub["sales_invoice"], 
+                    "payment_entry":sub["payment_entry"]
+
+                })
+            user_sub_doc.set("subscription_list", subscription_list) 
             user_sub_doc.status="Premium"
             user_sub_doc.save(ignore_permissions=True)  
             return result
         except Exception as e: 
             payment_method_id=""
-            result= {"message":"Echec"+e,"status":0}
+            result= {"message":"Echec"+str(e),"status":0}
     frappe.delete_doc("Sales Invoice", invoice_doc.name)
     return result
