@@ -569,9 +569,7 @@ def process_subscription(user_sub,sub_type):
     if(invoice_doc.disable_rounded_total):
         to_pay =min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
 
-    message=""
     for stripe_card in stripe_customer_doc.cards_list:
-        try:
             payment_method_id=stripe_card.card_id
             amount_cent=int(to_pay *100)
             payment_intent = stripe.PaymentIntent.create(
@@ -637,9 +635,6 @@ def process_subscription(user_sub,sub_type):
             user_sub_doc.status="Premium"
             user_sub_doc.save(ignore_permissions=True)  
             return result
-        except Exception as e: 
-            payment_method_id=""
-            message=message+str(e)+"\n"
     frappe.delete_doc("Sales Invoice", invoice_doc.name)
-    result= {"message":"Echec"+message,"status":0}
+    result= {"message":"Echec","status":0}
     return result
