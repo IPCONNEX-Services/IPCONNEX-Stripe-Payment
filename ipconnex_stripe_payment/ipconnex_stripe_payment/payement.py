@@ -642,3 +642,4 @@ def process_subscription(user_sub,sub_type):
             message=message+str(Exception)+"\n"
     frappe.delete_doc("Sales Invoice", invoice_doc.name)
     result= {"message":"Echec"+message,"status":0}
+    return result
