@@ -538,7 +538,7 @@ def process_subscription(user_sub,sub_type):
     posting_date= frappe.utils.nowdate()
     due_date= frappe.utils.add_days(posting_date, +30)
     rate=20
-    last_sub_day=datetime.strptime(user_sub_doc.last_sub_day, "%Y-%m-%d").date() 
+    last_sub_day=user_sub_doc.last_sub_day
     item_prices_list=frappe.get_all("Item Price",fields=["price_list_rate"],filters={"item_code":"Microsoft 365 Business Premium","selling":1})
     if(len(item_prices_list)!=0):
         rate=item_prices_list[0]["price_list_rate"]
@@ -626,7 +626,7 @@ def process_subscription(user_sub,sub_type):
 
             from_date=frappe.utils.nowdate() 
             if(last_sub_day ):
-                if(frappe.utils.nowdate() <= last_sub_day): 
+                if(datetime.strptime(frappe.utils.nowdate() , "%Y-%m-%d").date() <= last_sub_day): 
                     from_date= frappe.utils.add_days(last_sub_day, 1)
             to_date=frappe.utils.add_days(from_date, sub_type_doc.duration)
             subscription_list=[{
