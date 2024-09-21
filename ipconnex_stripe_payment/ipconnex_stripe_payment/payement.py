@@ -564,7 +564,7 @@ def process_subscription(user_sub,sub_type):
     invoice_doc.set_missing_values()
     invoice_doc.calculate_taxes_and_totals()
     invoice_doc.save(ignore_permissions=True)
-
+    result={}
     to_pay = invoice_doc.outstanding_amount
     if(invoice_doc.disable_rounded_total):
         to_pay =min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
@@ -623,6 +623,7 @@ def process_subscription(user_sub,sub_type):
             
 
             from_date=frappe.utils.nowdate() 
+            user_sub_doc=frappe.get_doc("User Subscription",user_sub)
             if(user_sub_doc.last_sub_day ):
                 if(frappe.utils.nowdate() <= user_sub_doc.last_sub_day):
                     from_date= frappe.utils.add_days(user_sub_doc.last_sub_day, 1)
@@ -636,7 +637,6 @@ def process_subscription(user_sub,sub_type):
             }]
             for sub in  user_sub_doc.subscription_list:
                 subscription_list.append(sub.as_dict())
-            user_sub_doc=frappe.get_doc("User Subscription",user_sub)
             user_sub_doc.set("subscription_list", subscription_list) 
             user_sub_doc.status="Premium"
             user_sub_doc.last_sub_day=to_date 
