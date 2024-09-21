@@ -624,7 +624,8 @@ def process_subscription(user_sub,sub_type):
 
             from_date=frappe.utils.nowdate() 
             if(user_sub_doc.last_sub_day ):
-                from_date=max(frappe.utils.nowdate() ,user_sub_doc.last_sub_day )
+                if(frappe.utils.nowdate() <= user_sub_doc.last_sub_day):
+                    from_date= frappe.utils.add_days(user_sub_doc.last_sub_day, 1)
             to_date=frappe.utils.add_days(from_date, sub_type_doc.duration)
             subscription_list=[{
                 "type":sub_type, 
