@@ -637,7 +637,9 @@ def process_subscription(user_sub,sub_type):
                 "payment_entry":payment_entry.name
             }]
             for sub in  user_sub_doc.subscription_list:
-                subscription_list.append(sub.as_dict())
+                sub_dict=sub.as_dict()
+                sub_dict["idx"]=sub_dict["idx"]+1
+                subscription_list.append(sub_dict)
             user_sub_doc.set("subscription_list", subscription_list) 
             user_sub_doc.status="Premium"
             user_sub_doc.last_sub_day=to_date 
