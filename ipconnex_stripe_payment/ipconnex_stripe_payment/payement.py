@@ -8,6 +8,8 @@ from frappe.utils import flt
 import stripe
 import random
 from datetime import datetime
+import calendar
+
 
 def setup_install():
     try:
@@ -538,8 +540,8 @@ def process_subscription(user_sub,sub_type):
     posting_date= frappe.utils.nowdate()
     due_date= frappe.utils.add_days(posting_date, +30)
     rate=20
-    last_sub_day=user_sub_doc.last_sub_day
-    item_prices_list=frappe.get_all("Item Price",fields=["price_list_rate"],filters={"item_code":"Microsoft 365 Business Premium","selling":1})
+    expiration_date=user_sub_doc.expiration_date
+    item_prices_list=frappe.get_all("Item Price",fields=["price_list_rate"],filters={"item_code":sub_type_doc.item,"selling":1})
     if(len(item_prices_list)!=0):
         rate=item_prices_list[0]["price_list_rate"]
     invoice_doc = frappe.get_doc({
@@ -622,13 +624,16 @@ def process_subscription(user_sub,sub_type):
             })
             payment_entry.save(ignore_permissions=True)  
             frappe.db.commit()   
-            
-
             from_date=frappe.utils.nowdate() 
-            if(last_sub_day ):
-                if(datetime.strptime(frappe.utils.nowdate() , "%Y-%m-%d").date() <= last_sub_day): 
-                    from_date= frappe.utils.add_days(str(last_sub_day), 1)
-            to_date=frappe.utils.add_days(from_date, sub_type_doc.duration)
+            if(expiration_date):
+                if(datetime.strptime(frappe.utils.nowdate() , "%Y-%m-%d").date() <= expiration_date): 
+                    from_date= frappe.utils.add_days(str(expiration_date), 1)
+            
+            from_date_obj=datetime.strptime(from_date, "%Y-%m-%d").date() 
+            sub_duration = calendar.monthrange(from_date_obj.year, from_date_obj.month)[1]-1
+            if(sub_type_doc.unit  =="Year"): 
+                sub_duration=365-(from_date_obj.year%4!=0)
+            to_date=frappe.utils.add_days(from_date,sub_duration)
             subscription_list=[{
                 "type":sub_type, 
                 "from":from_date, 
@@ -641,8 +646,8 @@ def process_subscription(user_sub,sub_type):
                 sub_dict["idx"]=sub_dict["idx"]+1
                 subscription_list.append(sub_dict)
             user_sub_doc.set("subscription_list", subscription_list) 
-            user_sub_doc.status="Premium"
-            user_sub_doc.last_sub_day=to_date 
+            user_sub_doc.status="Tenders"
+            user_sub_doc.expiration_date=to_date 
             user_sub_doc.save(ignore_permissions=True)  
             return result
         

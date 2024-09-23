@@ -11,7 +11,7 @@
     "stripe_customer",
     "auto_subscription",
     "auto_subscription_type",
-    "last_sub_day",
+    "expiration_date",
     "status",
     "account_status",
     "subscription_list"
@@ -41,15 +41,15 @@
       "options": "Subscription Type"
     },
     {
-      "fieldname": "last_sub_day",
+      "fieldname": "expiration_date",
       "fieldtype": "Date",
-      "label": "Last Subscription Day"
+      "label": "Expiration date"
     },
     {
       "fieldname": "status",
       "fieldtype": "Select",
       "label": "Status",
-      "options": "Guest\nPremium",
+      "options": "Guest\nTenders",
       "default": "Guest"
     },
     {

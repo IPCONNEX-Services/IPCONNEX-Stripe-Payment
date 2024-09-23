@@ -11,7 +11,7 @@
     "status",
     "item",
     "company",
-    "duration",
+    "unit",
     "income_account"
   ],
   "fields": [
@@ -39,9 +39,10 @@
       "options": "Company"
     },
     {
-      "fieldname": "duration",
-      "fieldtype": "Int",
-      "label": "Duration (days)"
+      "fieldname": "unit",
+      "fieldtype": "Select",
+      "label": "Unit",
+      "options": "Month\nYear"
     },
     {
       "fieldname": "income_account",
