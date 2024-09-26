@@ -659,4 +659,23 @@ def process_subscription(user_sub,sub_type):
             result= {"message":"Echec"+str(e),"status":0}
             return result
     frappe.delete_doc("Sales Invoice", invoice_doc.name)
-    return result
+    return result 
+
+def daily_auto_subscription():     
+    posting_date= frappe.utils.nowdate()        
+    tomorrow=frappe.utils.add_days(posting_date,1)
+    user_subsciptions=frappe.db.get_all("User Subscription",fields=["secret_key"],filters={ "auto_subscription":1, "auto_subscription_type":["is","set"],"expiration_date":tomorrow   },order_by='modified', limit_page_length=0)
+    for user_sub in user_subsciptions:
+        try:
+            user_sub_doc=frappe.get_doc("User Subscription",user_sub["name"])
+            process_subscription(user_sub["name"],user_sub_doc.auto_subscription_type)
+        except:
+            message="Go skip for the next"
+
+
+
+
+
+
+
+
