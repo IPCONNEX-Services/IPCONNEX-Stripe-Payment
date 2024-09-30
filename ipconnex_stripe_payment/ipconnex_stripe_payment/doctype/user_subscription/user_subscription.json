@@ -13,7 +13,7 @@
     "auto_subscription_type",
     "expiration_date",
     "status",
-    "account_status",
+    "subscribe",
     "subscription_list"
   ],
   "fields": [
@@ -53,9 +53,9 @@
       "default": "Guest"
     },
     {
-      "fieldname": "account_status",
+      "fieldname": "subscribe",
       "fieldtype": "Button",
-      "label": "Get Stripe ID"
+      "label": "Subscribe"
     },
     {
       "fieldname": "subscription_list",
