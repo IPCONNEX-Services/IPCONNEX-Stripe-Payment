@@ -590,7 +590,7 @@ def process_subscription(user_sub,sub_type):
                 }
             )
             invoice_doc.submit()
-            result= {"message":"Invoice Payed using Stripe #"+payment_intent.id,"status":1}
+            result= {"message":"Invoice Payed  #"+payment_intent.id,"status":1}
             payment_entry = frappe.get_doc({
                 "doctype": "Payment Entry",
                 'party_type': 'Customer',
