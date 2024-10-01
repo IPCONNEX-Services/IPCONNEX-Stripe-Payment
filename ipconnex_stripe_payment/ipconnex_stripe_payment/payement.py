@@ -662,6 +662,7 @@ def process_subscription(user_sub,sub_type):
     frappe.delete_doc("Sales Invoice", invoice_doc.name)
     return result 
 
+@frappe.whitelist()
 def daily_auto_subscription():     
     posting_date= frappe.utils.nowdate()        
     tomorrow=frappe.utils.add_days(posting_date,1)
