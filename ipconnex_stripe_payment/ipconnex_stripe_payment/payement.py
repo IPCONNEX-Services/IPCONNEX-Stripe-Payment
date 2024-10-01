@@ -532,8 +532,6 @@ def process_subscription(user_sub,sub_type):
         return
     stripe.api_key = stripe_settings[0]["secret_key"]
     pay_to = stripe_settings[0]["pay_to"]
-    sender=stripe_settings[0]["email_sending_account"]
-    email_template=stripe_settings[0]["email_template"]
     user_sub_doc=frappe.get_doc("User Subscription",user_sub)
     sub_type_doc=frappe.get_doc("Subscription Type",sub_type)
     stripe_customer_doc=frappe.get_doc("Stripe Customer",user_sub_doc.stripe_customer)
@@ -650,10 +648,10 @@ def process_subscription(user_sub,sub_type):
             user_sub_doc.expiration_date=to_date 
             user_sub_doc.save(ignore_permissions=True)  
             mail_content = f"""<h3>Auto subscription on Algeria Projects Portal</h3>
-                <p>Hello Customer  ,</p>
+                <p>Hello {user_sub_doc.stripe_customer},</p>
                 <p> We refreshed your subscription on our portal Algeria Project with success </p>  
                 <p>Thank you !<br> </p> """
-                
+               
             frappe.sendmail(
                         recipients=[user_sub_doc.user_id],
                         subject='Subscription Algeria Projects',
