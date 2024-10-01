@@ -649,7 +649,17 @@ def process_subscription(user_sub,sub_type):
             user_sub_doc.status="Tenders"
             user_sub_doc.expiration_date=to_date 
             user_sub_doc.save(ignore_permissions=True)  
-            
+            mail_content = f"""<h3>Auto subscription on Algeria Projects Portal</h3>
+                <p>Hello Customer  ,</p>
+                <p> We refreshed your subscription on our portal Algeria Project with success </p>  
+                <p>Thank you !<br> </p> """
+                
+            frappe.sendmail(
+                        recipients=[user_sub_doc.user_id],
+                        subject='Subscription Algeria Projects',
+                        content= mail_content,
+                        now=True,
+                        )
             return result
         
         except stripe.error.StripeError as e:
@@ -666,11 +676,10 @@ def process_subscription(user_sub,sub_type):
 def daily_auto_subscription():     
     posting_date= frappe.utils.nowdate()        
     tomorrow=frappe.utils.add_days(posting_date,1)
-    user_subsciptions=frappe.db.get_all("User Subscription",fields=["name"],filters={ "auto_subscription":1, "auto_subscription_type":["is","set"],"expiration_date":[ "<=",tomorrow ]  },order_by='modified', limit_page_length=0)
+    user_subsciptions=frappe.db.get_all("User Subscription",fields=["name","auto_subscription_type"],filters={ "auto_subscription":1, "auto_subscription_type":["is","set"],"expiration_date":[ "<=",tomorrow ]  },order_by='modified', limit_page_length=0)
     for user_sub in user_subsciptions:
         try:
-            user_sub_doc=frappe.get_doc("User Subscription",user_sub["name"])
-            process_subscription(user_sub["name"],user_sub_doc.auto_subscription_type)
+            process_subscription(user_sub["name"],user_sub["auto_subscription_type"])
         except:
             message="Go skip for the next"
 
