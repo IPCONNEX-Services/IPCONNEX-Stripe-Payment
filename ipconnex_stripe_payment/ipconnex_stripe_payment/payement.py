@@ -647,9 +647,9 @@ def process_subscription(user_sub,sub_type):
             user_sub_doc.status="Tenders"
             user_sub_doc.expiration_date=to_date 
             user_sub_doc.save(ignore_permissions=True)  
-            mail_content = f"""<h3>Auto subscription on Algeria Projects Portal</h3>
+            mail_content = f"""<h3>Auto subscription</h3>
                 <p> Hello {user_sub_doc.stripe_customer},</p>
-                <p> Your subscription on our portal AlgeriaProject has been renewed with success </p>  
+                <p> Your subscription on our portal has been renewed with success </p>  
                 <p>Thank you !<br> </p> """
                
             frappe.sendmail(
