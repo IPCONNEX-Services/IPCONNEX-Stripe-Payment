@@ -129,7 +129,7 @@ def checkPaymentStatus(client_secret):
 @frappe.whitelist(allow_guest=True) 
 def getCustomer(email, full_name):
     if frappe.session.user == "Guest":
-        if not frappe.local.flags.in_test and not frappe.local.form_dict.get("is_server_script"):
+        if not frappe.local.request_ip.startswith("127.0.0"):
             frappe.throw(_("Access denied: Guests cannot perform this action from the frontend"), frappe.PermissionError)
     try:        
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
@@ -148,7 +148,7 @@ def getCustomer(email, full_name):
 @frappe.whitelist(allow_guest=True) 
 def getCustomerCards(customer_id):
     if frappe.session.user == "Guest":
-        if not frappe.local.flags.in_test and not frappe.local.form_dict.get("is_server_script"):
+        if not frappe.local.request_ip.startswith("127.0.0"):
             frappe.throw(_("Access denied: Guests cannot perform this action from the frontend"), frappe.PermissionError)
     try:
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
@@ -300,7 +300,7 @@ def processPayment(doctype,docname):
 @frappe.whitelist(allow_guest=True) 
 def getNewCardToken(customer_id):
     if frappe.session.user == "Guest":
-        if not frappe.local.flags.in_test and not frappe.local.form_dict.get("is_server_script"):
+        if not frappe.local.request_ip.startswith("127.0.0"):
             frappe.throw(_("Access denied: Guests cannot perform this action from the frontend"), frappe.PermissionError)
     
     try:        
