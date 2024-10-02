@@ -126,8 +126,11 @@ def checkPaymentStatus(client_secret):
             "status":0
         }
 
-@frappe.whitelist() 
+@frappe.whitelist(allow_guest=True) 
 def getCustomer(email, full_name):
+    if frappe.session.user == "Guest":
+        if not frappe.local.flags.in_test and not frappe.local.form_dict.get("is_server_script"):
+            frappe.throw(_("Access denied: Guests cannot perform this action from the frontend"), frappe.PermissionError)
     try:        
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
@@ -142,8 +145,11 @@ def getCustomer(email, full_name):
     except Exception as e :
         return  {"message":str(e),"status":0}
     
-@frappe.whitelist() 
+@frappe.whitelist(allow_guest=True) 
 def getCustomerCards(customer_id):
+    if frappe.session.user == "Guest":
+        if not frappe.local.flags.in_test and not frappe.local.form_dict.get("is_server_script"):
+            frappe.throw(_("Access denied: Guests cannot perform this action from the frontend"), frappe.PermissionError)
     try:
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
@@ -166,7 +172,6 @@ def getCustomerCards(customer_id):
     except Exception as e :
         return {"message":str(e),"status":0}
 
-    
 @frappe.whitelist() 
 def processPayment(doctype,docname):
     try:
@@ -292,8 +297,12 @@ def processPayment(doctype,docname):
     except Exception as e :
         return {"message":str(e),"status":0}
     
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True) 
 def getNewCardToken(customer_id):
+    if frappe.session.user == "Guest":
+        if not frappe.local.flags.in_test and not frappe.local.form_dict.get("is_server_script"):
+            frappe.throw(_("Access denied: Guests cannot perform this action from the frontend"), frappe.PermissionError)
+    
     try:        
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
