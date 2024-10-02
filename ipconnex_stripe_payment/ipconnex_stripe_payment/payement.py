@@ -686,9 +686,5 @@ def daily_auto_subscription():
 
 @frappe.whitelist(allow_guest=True)
 def my_function():
-    is_called_from_client = frappe.local.request.method == "POST" and 'cmd' in frappe.local.request.args
-    if is_called_from_client:
-        return {"message": "Function called from client-side"}
-    else:
-        return {"message": "Function called from server-side or directly"}
+    return {"a": frappe.local.request.method,"b":frappe.local.request.args}
 
