@@ -684,16 +684,15 @@ def daily_auto_subscription():
 
 
 
-
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def my_function():
-    # Accessing caller information
-    user = frappe.local.session.user  # Get the current user's email or username
-    ip_address = frappe.local.request.remote_addr  # Get the IP address of the caller
-    ip_addr = frappe.local.request_ip
-    # Log or use this information as needed
-    frappe.logger().info(f"Function called by {user} from IP {ip_address}")
-    
-    return {"user": user, "ip_address": ip_address,"ip_add": ip_addr}
+    # Check if the function is called from frappe.call
+    is_called_from_client = frappe.local.request.method == "POST" and 'cmd' in frappe.local.request.args
 
+    if is_called_from_client:
+        # Logic for when called from client-side
+        return {"message": "Function called from client-side"}
+    else:
+        # Logic for when called directly or from another server script
+        return {"message": "Function called from server-side or directly"}
 
