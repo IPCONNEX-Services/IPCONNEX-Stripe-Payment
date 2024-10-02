@@ -126,11 +126,8 @@ def checkPaymentStatus(client_secret):
             "status":0
         }
 
-@frappe.whitelist(allow_guest=True) 
+@frappe.whitelist() 
 def getCustomer(email, full_name):
-    if frappe.session.user == "Guest":
-        if not frappe.local.request_ip.startswith("127.0.0"):
-            frappe.throw(_("Access denied: Guests cannot perform this action from the frontend"), frappe.PermissionError)
     try:        
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
@@ -145,11 +142,8 @@ def getCustomer(email, full_name):
     except Exception as e :
         return  {"message":str(e),"status":0}
     
-@frappe.whitelist(allow_guest=True) 
+@frappe.whitelist() 
 def getCustomerCards(customer_id):
-    if frappe.session.user == "Guest":
-        if not frappe.local.request_ip.startswith("127.0.0"):
-            frappe.throw(_("Access denied: Guests cannot perform this action from the frontend"), frappe.PermissionError)
     try:
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
@@ -172,6 +166,7 @@ def getCustomerCards(customer_id):
     except Exception as e :
         return {"message":str(e),"status":0}
 
+    
 @frappe.whitelist() 
 def processPayment(doctype,docname):
     try:
@@ -297,12 +292,8 @@ def processPayment(doctype,docname):
     except Exception as e :
         return {"message":str(e),"status":0}
     
-@frappe.whitelist(allow_guest=True) 
+@frappe.whitelist()
 def getNewCardToken(customer_id):
-    if frappe.session.user == "Guest":
-        if not frappe.local.request_ip.startswith("127.0.0"):
-            frappe.throw(_("Access denied: Guests cannot perform this action from the frontend"), frappe.PermissionError)
-    
     try:        
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
@@ -694,6 +685,15 @@ def daily_auto_subscription():
 
 
 
-
+@frappe.whitelist()
+def my_function():
+    # Accessing caller information
+    user = frappe.local.session.user  # Get the current user's email or username
+    ip_address = frappe.local.request.remote_addr  # Get the IP address of the caller
+    ip_addr = frappe.local.request_ip
+    # Log or use this information as needed
+    frappe.logger().info(f"Function called by {user} from IP {ip_address}")
+    
+    return {"user": user, "ip_address": ip_address,"ip_add": ip_addr}
 
 
