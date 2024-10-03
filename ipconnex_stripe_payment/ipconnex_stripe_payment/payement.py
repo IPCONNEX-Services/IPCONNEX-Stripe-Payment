@@ -126,8 +126,13 @@ def checkPaymentStatus(client_secret):
             "status":0
         }
 
-@frappe.whitelist() 
+@frappe.whitelist(allow_guest=True) 
 def getCustomer(email, full_name):
+    # you can allow guest by creating server script only but they dont have a direct access to it
+    cmd=frappe.local.request.form.to_dict().get('cmd', '')
+    if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
+        frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
+    # Continue 
     try:        
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
@@ -142,8 +147,12 @@ def getCustomer(email, full_name):
     except Exception as e :
         return  {"message":str(e),"status":0}
     
-@frappe.whitelist() 
+@frappe.whitelist(allow_guest=True) 
 def getCustomerCards(customer_id):
+    # you can allow guest by creating server script only but they dont have a direct access to it
+    cmd=frappe.local.request.form.to_dict().get('cmd', '')
+    if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
+        frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
     try:
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
@@ -292,8 +301,12 @@ def processPayment(doctype,docname):
     except Exception as e :
         return {"message":str(e),"status":0}
     
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def getNewCardToken(customer_id):
+    # you can allow guest by creating server script only but they dont have a direct access to it
+    cmd=frappe.local.request.form.to_dict().get('cmd', '')
+    if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
+        frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
     try:        
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
         if(len(stripe_settings)==0):
@@ -325,7 +338,7 @@ def getEmail(customer):
         return {"message":str(e),"status":0}
     
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def updateCards(client_token):
     try:
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
@@ -682,9 +695,4 @@ def daily_auto_subscription():
             message="Go skip for the next"
 
 
-
-
-@frappe.whitelist(allow_guest=True)
-def my_function():
-    return {"a": frappe.local.request.method,"b":frappe.local.request.args}
 
