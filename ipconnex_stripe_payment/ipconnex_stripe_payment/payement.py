@@ -696,3 +696,30 @@ def daily_auto_subscription():
 
 
 
+@frappe.whitelist()
+def remove_card(customer_id,card_id):     
+    user_roles = frappe.get_all("Has Role", filters={"parent": frappe.session.user}, fields=["role"])
+    user_roles = [role.role for role in user_roles]
+    is_admin = "System Manager" in user_roles or "Accounts Manager" in user_roles
+    # you can allow guest by creating server script only but they dont have a direct access to it
+    cmd=frappe.local.request.form.to_dict().get('cmd', '')
+
+    if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement') and not is_admin:
+        frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError) 
+    else : 
+        try: 
+            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
+            if(len(stripe_settings)==0):
+                return {"message":"Please configure Stripe Settings first","status":0}
+            stripe.api_key = stripe_settings[0]["secret_key"]
+            payment_methods = stripe.PaymentMethod.list(
+                customer=customer_id,
+                type="card"
+            )
+            for payment_method in payment_methods['data']:
+                if payment_method['id'] == card_id:
+                    stripe.PaymentMethod.detach(card_id)
+                    return {"message":f"Card {card_id} successfully deleted.","status":1}
+            return {"message":f"Card {card_id} not found for customer {customer_id}.","status":0}
+        except Exception as e:
+            return {"message":f"An error occurred: {str(e)}","status":0}
