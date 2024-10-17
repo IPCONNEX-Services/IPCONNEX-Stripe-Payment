@@ -719,7 +719,7 @@ def remove_card(customer_id,card_id):
             for payment_method in payment_methods['data']:
                 if payment_method['id'] == card_id:
                     stripe.PaymentMethod.detach(card_id)
-                    return {"message":f"Card {card_id} successfully deleted.","status":1}
-            return {"message":f"Card {card_id} not found for customer {customer_id}.","status":0}
+                    return {"message":f"Card {card_id} successfully deleted !","status":1}
+            return {"message":f"Card {card_id} not found !","status":0}
         except Exception as e:
             return {"message":f"An error occurred: {str(e)}","status":0}
