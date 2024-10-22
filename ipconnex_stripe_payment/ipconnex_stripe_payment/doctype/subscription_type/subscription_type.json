@@ -8,6 +8,7 @@
   "engine": "InnoDB",
   "field_order": [
     "label",
+    "title",
     "status",
     "item",
     "company",
@@ -19,6 +20,11 @@
       "fieldname": "label",
       "fieldtype": "Data",
       "label": "label"
+    },
+    {
+      "fieldname": "Title",
+      "fieldtype": "Data",
+      "label": "title"
     },
     {
       "fieldname": "status",
