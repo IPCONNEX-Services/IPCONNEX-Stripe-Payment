@@ -22,9 +22,9 @@
       "label": "label"
     },
     {
-      "fieldname": "Title",
+      "fieldname": "title",
       "fieldtype": "Data",
-      "label": "title"
+      "label": "Title"
     },
     {
       "fieldname": "status",
