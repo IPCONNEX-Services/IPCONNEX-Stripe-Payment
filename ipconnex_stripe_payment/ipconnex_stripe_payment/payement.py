@@ -378,8 +378,8 @@ def updateCards(client_token):
             )
             stripe_customer.card_token=setup_intent.client_secret
             stripe_customer.save(ignore_permissions=True)
-        except:
-            "Token Not Updated"
+        except Exception as e:
+             {"status":1,"message":"Cards Updated !","notif":"Card not updated ... "+ str(e)}
 
         return {"status":1,"message":"Cards Updated !"}
     except Exception as e :
