@@ -723,3 +723,31 @@ def remove_card(customer_id,card_id):
             return {"message":f"Card {card_id} not found !","status":0}
         except Exception as e:
             return {"message":f"An error occurred: {str(e)}","status":0}
+        
+
+@frappe.whitelist()
+def setDefautStripeAccount(stripe_account):    
+    user_roles = frappe.get_all("Has Role", filters={"parent": frappe.session.user}, fields=["role"])
+    user_roles = [role.role for role in user_roles]
+    is_admin = "System Manager" in user_roles or "Accounts Manager" in user_roles
+    # you can allow guest by creating server script only but they dont have a direct access to it
+    cmd=frappe.local.request.form.to_dict().get('cmd', '')
+
+    if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement') and not is_admin:
+        frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError) 
+    else : 
+        try: 
+            stripe_accounts=frappe.get_all("Stripe Settings",fields=["name"],filters={"is_default":1}, limit_page_length=0)
+            for stripe_acc in stripe_accounts:
+                frappe.db.set_value("Stripe Settings",stripe_acc["name"],"is_default",0)
+            frappe.db.set_value("Stripe Settings",stripe_account,"is_default",0)
+            return {"message":f"Default Stripe Account has been set !","status":1}
+        except Exception as e:
+            return {"message":f"An error occurred: {str(e)}","status":0}
+
+
+
+
+
+
+
