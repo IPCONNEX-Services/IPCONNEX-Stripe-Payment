@@ -72,8 +72,7 @@ def generateClientSecret(amount,currency,methods):
     methods=['card']
     try:
         
-        stripe_settings=frappe.db.get_all("Stripe Settings",
-                fields=["publishable_key","secret_key"],order_by='modified', limit_page_length=0)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["publishable_key","secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
             return{
                 "error":'Set Stripe Settings first !',
@@ -99,7 +98,7 @@ def generateClientSecret(amount,currency,methods):
 def checkPaymentStatus(client_secret):
     try:
         payment_intent = stripe.PaymentIntent.retrieve(client_secret.split("_secret_")[0])
-        print(f"PaymentIntent status: {payment_intent.status}")
+        #print(f"PaymentIntent status: {payment_intent.status}")
 
         if payment_intent.status == "succeeded":
             return {
@@ -127,17 +126,23 @@ def checkPaymentStatus(client_secret):
         }
 
 @frappe.whitelist(allow_guest=True) 
-def getCustomer(email, full_name):
+def getCustomer(email, full_name,stripe_acc=""):
     # you can allow guest by creating server script only but they dont have a direct access to it
     cmd=frappe.local.request.form.to_dict().get('cmd', '')
     if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
     # Continue 
-    try:        
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
-        if(len(stripe_settings)==0):
-            return {"message":"Please configure Stripe Settings first","status":0}
-        stripe.api_key = stripe_settings[0]["secret_key"]
+    try:
+        if(stripe_acc)    :
+            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc',filters={"name":stripe_acc}, limit_page_length=1)
+            if(len(stripe_settings)==0):
+                return {"message":f"Stripe Setting {stripe_acc} not found ","status":0}
+            stripe.api_key = stripe_settings[0]["secret_key"]
+        else :        
+            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
+            if(len(stripe_settings)==0):
+                return {"message":"Please configure Stripe Settings first","status":0}
+            stripe.api_key = stripe_settings[0]["secret_key"]
         customers = stripe.Customer.list(email=email).auto_paging_iter()
         for customer in customers:
             if customer.name == full_name:
@@ -148,16 +153,23 @@ def getCustomer(email, full_name):
         return  {"message":str(e),"status":0}
     
 @frappe.whitelist(allow_guest=True) 
-def getCustomerCards(customer_id):
+def getCustomerCards(customer_id,stripe_acc=""):
     # you can allow guest by creating server script only but they dont have a direct access to it
     cmd=frappe.local.request.form.to_dict().get('cmd', '')
     if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
-        if(len(stripe_settings)==0):
-            return {"message":"Please configure Stripe Settings first","status":0}
-        stripe.api_key = stripe_settings[0]["secret_key"]
+        if(stripe_acc)    :
+            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc',filters={"name":stripe_acc}, limit_page_length=1)
+            if(len(stripe_settings)==0):
+                return {"message":f"Stripe Setting {stripe_acc} not found ","status":0}
+            stripe.api_key = stripe_settings[0]["secret_key"]
+        else :        
+            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
+            if(len(stripe_settings)==0):
+                return {"message":"Please configure Stripe Settings first","status":0}
+            stripe.api_key = stripe_settings[0]["secret_key"]
+
         payment_methods = stripe.PaymentMethod.list(
             customer=customer_id,
             type="card"  
@@ -179,7 +191,7 @@ def getCustomerCards(customer_id):
 @frappe.whitelist() 
 def processPayment(doctype,docname):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='modified', limit_page_length=0)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
@@ -308,7 +320,7 @@ def getNewCardToken(customer_id):
     if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
     try:        
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
@@ -341,7 +353,7 @@ def getEmail(customer):
 @frappe.whitelist()
 def updateCards(client_token):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
@@ -387,7 +399,7 @@ def updateCards(client_token):
 
 def checkProcessInvoice(doc, method):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='modified', limit_page_length=0)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
             frappe.msgprint("Error : Please configure Stripe Settings first")
             return
@@ -539,7 +551,7 @@ def hourly_process_payment():
 
 @frappe.whitelist()
 def process_subscription(user_sub,sub_type):
-    stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='modified', limit_page_length=0)
+    stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='is_default desc,modified desc', limit_page_length=1)
     if(len(stripe_settings)==0):
         frappe.msgprint("Error : Please configure Stripe Settings first")
         return
@@ -708,7 +720,7 @@ def remove_card(customer_id,card_id):
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError) 
     else : 
         try: 
-            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='modified', limit_page_length=0)
+            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
             if(len(stripe_settings)==0):
                 return {"message":"Please configure Stripe Settings first","status":0}
             stripe.api_key = stripe_settings[0]["secret_key"]

@@ -14,10 +14,10 @@ frappe.ui.form.on("Stripe Settings", {
       frappe.call({
         method:
           "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.setDefautStripeAccount",
-        args: { account_name: frm.doc.name },
+        args: { stripe_account: frm.doc.name },
         callback: function (res) {
           if (res.message.status == 1) {
-            cur_frm.reload_doc();
+            frm.reload_doc();
             Swal.fire({
               icon: "success",
               title: "Success",

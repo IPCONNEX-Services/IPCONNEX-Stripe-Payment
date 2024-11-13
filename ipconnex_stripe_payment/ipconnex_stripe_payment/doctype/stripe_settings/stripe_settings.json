@@ -75,9 +75,8 @@
     },
     {
       "fieldname": "is_default",
-      "fieldtype": "check",
-      "label": "Default",
-      "depends_on": "eval:0"
+      "fieldtype": "Check",
+      "label": "Default"
     }
   ],
   "links": [],
@@ -100,6 +99,9 @@
       "write": 1
     }
   ],
+  "list_view": {
+    "fields": ["gateway_name", "pay_to", "is_default"]
+  },
   "quick_entry": 1,
   "sort_field": "modified",
   "sort_order": "DESC"
