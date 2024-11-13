@@ -17,6 +17,7 @@ frappe.ui.form.on("Stripe Settings", {
         args: { account_name: frm.doc.name },
         callback: function (res) {
           if (res.message.status == 1) {
+            cur_frm.reload_doc();
             Swal.fire({
               icon: "success",
               title: "Success",
