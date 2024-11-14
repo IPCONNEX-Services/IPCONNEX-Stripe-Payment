@@ -191,21 +191,23 @@ def getCustomerCards(customer_id,stripe_acc=""):
 @frappe.whitelist() 
 def processPayment(doctype,docname):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='is_default desc,modified desc', limit_page_length=1)
-        if(len(stripe_settings)==0):
-            return {"message":"Please configure Stripe Settings first","status":0}
-        stripe.api_key = stripe_settings[0]["secret_key"]
-        pay_to = stripe_settings[0]["pay_to"]
-        sender=stripe_settings[0]["email_sending_account"]
-        email_template=stripe_settings[0]["email_template"]
         invoice_doc=frappe.get_doc(doctype,docname)
         stripe_customers= frappe.get_all(
             "Stripe Customer",
             filters={"customer":invoice_doc.customer},
             fields=["name"])
-    
         if(len(stripe_customers)!=0 and len(invoice_doc.customer)!=0 )    :
             stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
+            filters={}
+            if(stripe_customer.stripe_account):
+                filters={"name":stripe_customer.stripe_account}
+            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],filters=filters,order_by='is_default desc,modified desc', limit_page_length=1)
+            if(len(stripe_settings)==0):
+                return {"message":"Please configure Stripe Settings first","status":0}
+            stripe.api_key = stripe_settings[0]["secret_key"]
+            pay_to = stripe_settings[0]["pay_to"]
+            sender=stripe_settings[0]["email_sending_account"]
+            email_template=stripe_settings[0]["email_template"]
             customer_id=stripe_customer.stripe_id
             if( len(stripe_customer.cards_list)==0):
                 return {"message":"No cards found ! please add a payment method to the current customer","status":0}
@@ -314,13 +316,16 @@ def processPayment(doctype,docname):
         return {"message":str(e),"status":0}
     
 @frappe.whitelist(allow_guest=True)
-def getNewCardToken(customer_id):
+def getNewCardToken(customer_id,stripe_acc=""):
     # you can allow guest by creating server script only but they dont have a direct access to it
     cmd=frappe.local.request.form.to_dict().get('cmd', '')
     if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
     try:        
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
+        filters={}
+        if(stripe_acc):
+            filters={"name":stripe_acc}
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],filters=filters,order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
@@ -353,17 +358,18 @@ def getEmail(customer):
 @frappe.whitelist()
 def updateCards(client_token):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
+        stripe_customers=frappe.db.get_all("Stripe Customer",
+                    filters={"card_token":client_token },
+                    fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified', limit_page_length=1)
+        if(len(stripe_customers)==0): 
+            return {"message":"Customer Card token unfound","status":0}
+        filters={}
+        if(stripe_customers[0]["stripe_account"]):
+            filters={"name":stripe_customers[0]["stripe_account"]}
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],filters=filters,order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
-        
-        stripe_customers=frappe.db.get_all("Stripe Customer",
-                    filters={"card_token":client_token },
-                    fields=["name","email","card_token","stripe_id"],order_by='modified', limit_page_length=0)
-        if(len(stripe_customers)==0): 
-            return {"message":"Customer Card token unfound","status":0}
-
         payment_methods = stripe.PaymentMethod.list(
             customer=stripe_customers[0].stripe_id,
             type="card"  
@@ -399,16 +405,19 @@ def updateCards(client_token):
 
 def checkProcessInvoice(doc, method):
     try:
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='is_default desc,modified desc', limit_page_length=1)
+        stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","auto_process","process_delay","stripe_account"],filters={"customer":doc.customer},order_by='modified', limit_page_length=0)
+        filters={}
+        if(stripe_customers[0]["stripe_account"]):
+            filters={"name":stripe_customers[0]["stripe_account"]}
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],filters=filters,order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
-            frappe.msgprint("Error : Please configure Stripe Settings first")
-            return
+            return {"message":"Please configure Stripe Settings first","status":0}
         stripe.api_key = stripe_settings[0]["secret_key"]
         pay_to = stripe_settings[0]["pay_to"]
         sender=stripe_settings[0]["email_sending_account"]
         email_template=stripe_settings[0]["email_template"]
-        stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","auto_process","process_delay"],filters={"customer":doc.customer},order_by='modified', limit_page_length=0)
-        
+
+
         if( (len(stripe_customers)!=0 and len(doc.customer)!=0 ) and ( stripe_customers[0].auto_process and stripe_customers[0].process_delay==0)  )   :
             stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
             customer_id=stripe_customer.stripe_id
@@ -551,15 +560,17 @@ def hourly_process_payment():
 
 @frappe.whitelist()
 def process_subscription(user_sub,sub_type):
-    stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],order_by='is_default desc,modified desc', limit_page_length=1)
-    if(len(stripe_settings)==0):
-        frappe.msgprint("Error : Please configure Stripe Settings first")
-        return
-    stripe.api_key = stripe_settings[0]["secret_key"]
-    pay_to = stripe_settings[0]["pay_to"]
     user_sub_doc=frappe.get_doc("User Subscription",user_sub)
     sub_type_doc=frappe.get_doc("Subscription Type",sub_type)
     stripe_customer_doc=frappe.get_doc("Stripe Customer",user_sub_doc.stripe_customer)
+    filters={}
+    if(stripe_customer_doc.stripe_account):
+        filters={"name":stripe_customer_doc.stripe_account}
+    stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],filters=filters,order_by='is_default desc,modified desc', limit_page_length=1)
+    if(len(stripe_settings)==0):
+        return {"message":"Please configure Stripe Settings first","status":0}
+    stripe.api_key = stripe_settings[0]["secret_key"]
+    pay_to = stripe_settings[0]["pay_to"]
     posting_date= frappe.utils.nowdate()
     due_date= frappe.utils.add_days(posting_date, +30)
     rate=20
@@ -720,7 +731,11 @@ def remove_card(customer_id,card_id):
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError) 
     else : 
         try: 
-            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
+            stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","stripe_account"],filters={"stripe_id":customer_id},order_by='modified', limit_page_length=1)
+            if(len(stripe_customers)):
+                if(stripe_customers[0]["stripe_account"]):
+                    filters={"name":stripe_customers[0]["stripe_account"]}
+            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],filters=filters,order_by='is_default desc,modified desc', limit_page_length=1)
             if(len(stripe_settings)==0):
                 return {"message":"Please configure Stripe Settings first","status":0}
             stripe.api_key = stripe_settings[0]["secret_key"]
