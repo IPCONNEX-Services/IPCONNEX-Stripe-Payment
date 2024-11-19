@@ -346,13 +346,13 @@ def getEmail(customer):
 
 
 
-def get_cards_by_email(api_key, account_name, email):
+def get_cards_by_email(api_key, account_name, customer_email):
     """Fetch all cards associated with an email in a specific Stripe account."""
     stripe.api_key = api_key
     cards = []
 
     # Search for customers by email
-    customers = stripe.Customer.list(email=email)
+    customers = stripe.Customer.list(email=customer_email)
 
     for customer in customers.auto_paging_iter():
         # List payment methods for the customer
