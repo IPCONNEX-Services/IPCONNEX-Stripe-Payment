@@ -9,8 +9,6 @@ import stripe
 import random
 from datetime import datetime, timezone
 import calendar
-
-
 def setup_install():
     try:
         email_templates= frappe.get_all(
@@ -153,36 +151,27 @@ def getCustomer(email, full_name,stripe_acc=""):
         return  {"message":str(e),"status":0}
     
 @frappe.whitelist(allow_guest=True) 
-def getCustomerCards(customer_id,stripe_acc=""):
+def getCustomerCards(customer_email):
     # you can allow guest by creating server script only but they dont have a direct access to it
     cmd=frappe.local.request.form.to_dict().get('cmd', '')
     if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
     try:
-        if(stripe_acc)    :
-            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc',filters={"name":stripe_acc}, limit_page_length=1)
-            if(len(stripe_settings)==0):
-                return {"message":f"Stripe Setting {stripe_acc} not found ","status":0}
-            stripe.api_key = stripe_settings[0]["secret_key"]
-        else :        
-            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
-            if(len(stripe_settings)==0):
-                return {"message":"Please configure Stripe Settings first","status":0}
-            stripe.api_key = stripe_settings[0]["secret_key"]
-
-        payment_methods = stripe.PaymentMethod.list(
-            customer=customer_id,
-            type="card"  
-        )
+        stripe_customers=frappe.db.get_all("Stripe Customer",
+                    filters={"email":customer_email},
+                    fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified', limit_page_length=1)
+        if(len(stripe_customers)==0): 
+            return {"message":"Customer Card token unfound","status":0}
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["name","secret_key"],order_by='is_default desc,modified desc', limit_page_length=0)
+        if(len(stripe_settings)==0):
+            return {"message":"Please configure Stripe Settings first","status":0}
+        
         card_details = []
-        for pm in payment_methods.data:
-            card_info = {
-                "brand": pm.card.brand,  
-                "last_digits": pm.card.last4,  
-                "exp_date": str(pm.card.exp_month) +"/"+str(pm.card.exp_year),
-                "card_id": pm.id  
-            }
-            card_details.append(card_info)
+        for stripe_setting in stripe_settings:    
+            cards_part=get_cards_by_email(stripe_setting["secret_key"],stripe_setting["secret_key"], stripe_customers[0]["email"])
+            card_details.extend(cards_part)
+
+        card_details = sorted(card_details, key=lambda x: x['created'],reverse=True)
         return {"result":card_details,"status":1,"message":"Cards Updated !"}
     except Exception as e :
         return {"message":str(e),"status":0}
@@ -357,7 +346,7 @@ def getEmail(customer):
 
 
 
-def get_cards_by_email(api_key,account_name, email,current_token=""):
+def get_cards_by_email(api_key, account_name, email):
     """Fetch all cards associated with an email in a specific Stripe account."""
     stripe.api_key = api_key
     cards = []
@@ -406,7 +395,8 @@ def updateCards(client_token):
         
         card_details = []
         for stripe_setting in stripe_settings:    
-            card_details.extend(get_cards_by_email(stripe_setting["secret_key"],stripe_setting["secret_key"], stripe_customers[0]["email"]))
+            cards_part=get_cards_by_email(stripe_setting["secret_key"],stripe_setting["name"], stripe_customers[0]["email"])
+            card_details.extend(cards_part)
 
         card_details = sorted(card_details, key=lambda x: x['created'],reverse=True)
 
@@ -416,6 +406,10 @@ def updateCards(client_token):
         stripe_customer.card_token=""
         stripe_customer.save(ignore_permissions=True)
         try :
+            filters={}
+            if(stripe_customers[0]["stripe_account"]):
+                filters={"name":stripe_customers[0]["stripe_account"]}
+            stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],filters=filters,order_by='is_default desc,modified desc', limit_page_length=1)
             stripe.api_key = stripe_settings[0]["secret_key"]
             setup_intent = stripe.SetupIntent.create(
                 customer=stripe_customer.stripe_id,
