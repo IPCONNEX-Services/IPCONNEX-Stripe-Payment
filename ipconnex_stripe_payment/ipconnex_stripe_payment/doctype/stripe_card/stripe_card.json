@@ -7,36 +7,49 @@
   "editable_grid": 1,
   "engine": "InnoDB",
   "track_changes": 0,
-  "field_order": [
-    "card_id",
-    "brand",
-    "exp_date",
-    "last_digits"
-  ],
-  "fields": [ 
+  "field_order": ["card_id", "brand", "exp_date", "last_digits"],
+  "fields": [
     {
-     "fieldname": "card_id",
-     "fieldtype": "Data",
-     "label": "Card ID",
-     "in_list_view": 2
+      "fieldname": "card_id",
+      "fieldtype": "Data",
+      "label": "Card ID",
+      "in_list_view": 2
     },
     {
-       "fieldname": "brand",
-       "fieldtype": "Data",
-       "label": "Brand",
-       "in_list_view": 2
-    },  
+      "fieldname": "brand",
+      "fieldtype": "Data",
+      "label": "Brand",
+      "in_list_view": 1
+    },
     {
       "fieldname": "exp_date",
       "fieldtype": "Data",
       "label": "Expiration Date",
-      "in_list_view": 2
-    },  
+      "in_list_view": 1
+    },
     {
-       "fieldname": "last_digits",
-       "fieldtype": "Data",
-       "label": "Last Digits",
-       "in_list_view": 2
+      "fieldname": "last_digits",
+      "fieldtype": "Data",
+      "label": "Last Digits",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "created",
+      "fieldtype": "Date",
+      "label": "Created",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "stripe_id",
+      "fieldtype": "Data",
+      "label": "Stripe ID"
+    },
+    {
+      "fieldname": "stripe_account",
+      "fieldtype": "Link",
+      "label": "Stripe Account",
+      "options": "Stripe Settings",
+      "in_list_view": 2
     }
   ],
   "links": [],
@@ -46,28 +59,29 @@
   "name": "Stripe Card",
   "owner": "Administrator",
   "permissions": [
-   {
-    "create": 1,
-    "delete": 1,
-    "email": 1,
-    "export": 1,
-    "print": 1,
-    "read": 1,
-    "report": 1,
-    "role": "System Manager", 
-    "share": 1,
-    "write": 1
-   }
-  ],    
-  "istable": 1,    
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "istable": 1,
   "list_view": {
     "fields": [
       "card_id",
-      "addition_date",
       "brand",
       "exp_date",
       "last_digits",
-      "status"
+      "created",
+      "stripe_id",
+      "stripe_account"
     ]
   },
   "sort_field": "modified",

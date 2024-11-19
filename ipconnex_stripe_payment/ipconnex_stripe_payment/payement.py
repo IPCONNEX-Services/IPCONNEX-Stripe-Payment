@@ -7,7 +7,7 @@ from frappe import _
 from frappe.utils import flt
 import stripe
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 import calendar
 
 
@@ -355,6 +355,43 @@ def getEmail(customer):
         return {"message":str(e),"status":0}
     
 
+
+
+def get_cards_by_email(api_key,account_name, email,current_token=""):
+    """Fetch all cards associated with an email in a specific Stripe account."""
+    stripe.api_key = api_key
+    cards = []
+
+    # Search for customers by email
+    customers = stripe.Customer.list(email=email)
+
+    for customer in customers.auto_paging_iter():
+        # List payment methods for the customer
+        payment_methods = stripe.PaymentMethod.list(
+            customer=customer['id'],
+            type='card'
+        )
+        for payment_method in payment_methods.auto_paging_iter():
+            cards.append({
+                "card_id" : payment_method['id'],
+                "brand":payment_method['card']['brand'].upper(),
+                "exp_date":  str(payment_method["card"]["exp_month"])+"/"+str(payment_method["card"]["exp_year"]),
+                "last_digits" : payment_method['card']['last4'],
+                "created":datetime.fromtimestamp(payment_method['created'], tz=timezone.utc).strftime('%Y-%m-%d'),
+                "stripe_id" :customer['id'] ,
+                "stripe_account" : account_name
+            })
+        
+        #Clean old cards 
+        setup_intents = stripe.SetupIntent.list(customer=customer['id'])
+        for setup_intent in setup_intents.auto_paging_iter():
+            if(setup_intent['status'] == 'requires_payment_method' ):
+                try:
+                    stripe.SetupIntent.cancel(setup_intent['id'])
+                except stripe.error.StripeError as e:
+                    msg=f"Failed to cancel SetupIntent {setup_intent['id']}: {e.user_message}"
+    return cards
+
 @frappe.whitelist()
 def updateCards(client_token):
     try:
@@ -363,28 +400,18 @@ def updateCards(client_token):
                     fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified', limit_page_length=1)
         if(len(stripe_customers)==0): 
             return {"message":"Customer Card token unfound","status":0}
-        filters={}
-        if(stripe_customers[0]["stripe_account"]):
-            filters={"name":stripe_customers[0]["stripe_account"]}
-        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key"],filters=filters,order_by='is_default desc,modified desc', limit_page_length=1)
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["name","secret_key"],order_by='is_default desc,modified desc', limit_page_length=0)
         if(len(stripe_settings)==0):
             return {"message":"Please configure Stripe Settings first","status":0}
-        stripe.api_key = stripe_settings[0]["secret_key"]
-        payment_methods = stripe.PaymentMethod.list(
-            customer=stripe_customers[0].stripe_id,
-            type="card"  
-        )
-        card_details = []
-        stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
         
-        for pm in payment_methods.data:
-            card_info = {
-                "brand": pm.card.brand,  
-                "last_digits": pm.card.last4,  
-                "exp_date": str(pm.card.exp_month) +"/"+str(pm.card.exp_year),
-                "card_id": pm.id  
-            }
-            card_details.append(card_info)
+        card_details = []
+        for stripe_setting in stripe_settings:    
+            card_details.extend(get_cards_by_email(stripe_setting["secret_key"],stripe_setting["secret_key"], stripe_customers[0]["email"]))
+
+        card_details = sorted(card_details, key=lambda x: x['created'],reverse=True)
+
+        stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
+
         stripe_customer.set("cards_list", card_details) 
         stripe_customer.card_token=""
         stripe_customer.save(ignore_permissions=True)
