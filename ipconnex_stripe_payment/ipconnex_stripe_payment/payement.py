@@ -168,7 +168,7 @@ def getCustomerCards(customer_email):
         
         card_details = []
         for stripe_setting in stripe_settings:    
-            cards_part=get_cards_by_email(stripe_setting["secret_key"],stripe_setting["secret_key"], stripe_customers[0]["email"])
+            cards_part=get_cards_by_email(stripe_setting["secret_key"],stripe_setting["name"], stripe_customers[0]["email"])
             card_details.extend(cards_part)
 
         card_details = sorted(card_details, key=lambda x: x['created'],reverse=True)
