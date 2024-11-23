@@ -193,24 +193,30 @@ def processPayment(doctype,docname):
             stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],filters=filters,order_by='is_default desc,modified desc', limit_page_length=1)
             if(len(stripe_settings)==0):
                 return {"message":"Please configure Stripe Settings first","status":0}
-            stripe.api_key = stripe_settings[0]["secret_key"]
+            #stripe.api_key = stripe_settings[0]["secret_key"]
             pay_to = stripe_settings[0]["pay_to"]
             sender=stripe_settings[0]["email_sending_account"]
             email_template=stripe_settings[0]["email_template"]
-            customer_id=stripe_customer.stripe_id
             if( len(stripe_customer.cards_list)==0):
                 return {"message":"No cards found ! please add a payment method to the current customer","status":0}
             dateStr = frappe.utils.nowdate() 
             for stripe_card in stripe_customer.cards_list:
                 try:
+
                     payment_method_id=stripe_card.card_id
                     if(invoice_doc.disable_rounded_total):
                         amount=min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
                     else:
                         amount=invoice_doc.outstanding_amount
                     amount_cent=int(amount*100)
+                    #use new card item
+                    stripe_doc=frappe.get_doc("Stripe Settings",stripe_card.stripe_account )
+                    pay_to = stripe_doc.pay_to
+                    sender= stripe_doc.email_sending_account
+                    email_template=stripe_doc.email_template
+                    stripe.api_key = stripe_doc.secret_key
                     payment_intent = stripe.PaymentIntent.create(
-                        customer=customer_id,  
+                        customer=stripe_card.stripe_id,  
                         payment_method=payment_method_id, 
                         amount=amount_cent,  
                         currency=invoice_doc.currency.lower(),  
@@ -454,8 +460,14 @@ def checkProcessInvoice(doc, method):
                     else:
                         amount=doc.outstanding_amount
                     amount_cent=int(amount*100)
+                    #use new card item 
+                    stripe_doc=frappe.get_doc("Stripe Settings",stripe_card.stripe_account )
+                    pay_to = stripe_doc.pay_to
+                    sender= stripe_doc.email_sending_account
+                    email_template=stripe_doc.email_template
+                    stripe.api_key = stripe_doc.secret_key
                     payment_intent = stripe.PaymentIntent.create(
-                        customer=customer_id,  
+                        customer=stripe_card.stripe_id,  
                         payment_method=payment_method_id, 
                         amount=amount_cent,  
                         currency=doc.currency.lower(),  
@@ -632,8 +644,13 @@ def process_subscription(user_sub,sub_type):
         try:
             payment_method_id=stripe_card.card_id
             amount_cent=int(to_pay *100)
+            
+            #use new card item
+            stripe_doc=frappe.get_doc("Stripe Settings",stripe_card.stripe_account )
+            pay_to = stripe_doc.pay_to
+            stripe.api_key = stripe_doc.secret_key
             payment_intent = stripe.PaymentIntent.create(
-                customer=stripe_customer_doc.stripe_id,  
+                customer=stripe_card.stripe_id,  
                 payment_method=payment_method_id, 
                 amount=amount_cent,  
                 currency=invoice_doc.currency.lower(),  
@@ -784,6 +801,33 @@ def setDefautStripeAccount(stripe_account):
     if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement') and not is_admin:
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError) 
     else : 
+        
+        stripe_account=frappe.get_doc("Stripe Settings",stripe_account)
+        
+        stripe.api_key = stripe_account.secret_key
+        stripe_customers=frappe.get_all("Stripe Customer",fields=["name","email","customer"],filters={"stripe_account":""}, limit_page_length=0)
+        for stripe_customer in stripe_customers:
+            try: 
+                customer_id=""
+                customers = stripe.Customer.list(email=stripe_customer["email"]).auto_paging_iter()
+                for customer in customers:
+                    if customer.name == stripe_customer["customer"]:
+                        customer_id=customer.id
+
+                if(not customer_id):
+                    new_customer = stripe.Customer.create(email=stripe_customer["email"], name=stripe_customer["customer"])
+                    customer_id=new_customer.id
+
+                setup_intent = stripe.SetupIntent.create(
+                    customer=stripe_customer.stripe_id,
+                    payment_method_types=['card']
+                )
+                stripe_customer.card_token=setup_intent.client_secret
+                stripe_customer.save(ignore_permissions=True)
+                frappe.db.set_value("Stripe Customer",stripe_customer["name"],"stripe_id",customer_id)
+                frappe.db.set_value("Stripe Customer",stripe_customer["name"],"card_token",setup_intent.client_secret)
+            except Exception as e:
+                msg="do nothing"
         try: 
             stripe_accounts=frappe.get_all("Stripe Settings",fields=["name"],filters={"is_default":1}, limit_page_length=0)
             for stripe_acc in stripe_accounts:
