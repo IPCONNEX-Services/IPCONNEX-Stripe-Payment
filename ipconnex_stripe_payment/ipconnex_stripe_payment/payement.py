@@ -57,7 +57,6 @@ def setup_install():
             "parent":"Customer",
             "parentfield":"links",
             "parenttype":"Doctype",
-            "idx":1,
             "link_doctype":"Stripe Customer",
             "link_fieldname":"customer",
             "group":"Payments",
@@ -159,7 +158,7 @@ def getCustomerCards(customer_email):
     try:
         stripe_customers=frappe.db.get_all("Stripe Customer",
                     filters={"email":customer_email},
-                    fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified', limit_page_length=1)
+                    fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified desc', limit_page_length=1)
         if(len(stripe_customers)==0): 
             return {"message":"Customer Card token unfound","status":0}
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["name","secret_key"],order_by='is_default desc,modified desc', limit_page_length=0)
@@ -174,7 +173,7 @@ def getCustomerCards(customer_email):
         card_details = sorted(card_details, key=lambda x: x['created'],reverse=True)
         return {"result":card_details,"status":1,"message":"Cards Updated !"}
     except Exception as e :
-        return {"message":str(e),"status":0}
+        return {"message":str(e),"status":0 ,"result":card_details}
 
     
 @frappe.whitelist() 
@@ -184,6 +183,7 @@ def processPayment(doctype,docname):
         stripe_customers= frappe.get_all(
             "Stripe Customer",
             filters={"customer":invoice_doc.customer},
+            order_by='modified desc',
             fields=["name"])
         if(len(stripe_customers)!=0 and len(invoice_doc.customer)!=0 )    :
             stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
@@ -392,7 +392,7 @@ def updateCards(client_token):
     try:
         stripe_customers=frappe.db.get_all("Stripe Customer",
                     filters={"card_token":client_token },
-                    fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified', limit_page_length=1)
+                    fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified desc', limit_page_length=1)
         if(len(stripe_customers)==0): 
             return {"message":"Customer Card token unfound","status":0}
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["name","secret_key"],order_by='is_default desc,modified desc', limit_page_length=0)
@@ -432,7 +432,7 @@ def updateCards(client_token):
 
 def checkProcessInvoice(doc, method):
     try:
-        stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","auto_process","process_delay","stripe_account"],filters={"customer":doc.customer},order_by='modified', limit_page_length=0)
+        stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","auto_process","process_delay","stripe_account"],filters={"customer":doc.customer},order_by='modified desc', limit_page_length=0)
         filters={}
         if(stripe_customers[0]["stripe_account"]):
             filters={"name":stripe_customers[0]["stripe_account"]}
@@ -564,7 +564,7 @@ def checkProcessInvoice(doc, method):
 @frappe.whitelist()
 def hourly_process_payment():
     current_time = frappe.utils.now_datetime()
-    stripe_customers=frappe.db.get_all("Stripe Customer",fields=["customer","process_delay"],filters={"auto_process":1},order_by='modified', limit_page_length=0)
+    stripe_customers=frappe.db.get_all("Stripe Customer",fields=["customer","process_delay"],filters={"auto_process":1},order_by='modified desc', limit_page_length=0)
     for sc in stripe_customers:
         sales=[]
         t= frappe.utils.add_to_date(current_time, hours=max(1,sc.process_delay)*(-1))
@@ -748,7 +748,7 @@ def process_subscription(user_sub,sub_type):
 def daily_auto_subscription():     
     posting_date= frappe.utils.nowdate()        
     tomorrow=frappe.utils.add_days(posting_date,1)
-    user_subsciptions=frappe.db.get_all("User Subscription",fields=["name","auto_subscription_type"],filters={ "auto_subscription":1, "auto_subscription_type":["is","set"],"expiration_date":[ "<=",tomorrow ]  },order_by='modified', limit_page_length=0)
+    user_subsciptions=frappe.db.get_all("User Subscription",fields=["name","auto_subscription_type"],filters={ "auto_subscription":1, "auto_subscription_type":["is","set"],"expiration_date":[ "<=",tomorrow ]  },order_by='modified desc', limit_page_length=0)
     for user_sub in user_subsciptions:
         try:
             process_subscription(user_sub["name"],user_sub["auto_subscription_type"])
@@ -769,7 +769,7 @@ def remove_card(customer_id,card_id):
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError) 
     else : 
         try: 
-            stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","stripe_account"],filters={"stripe_id":customer_id},order_by='modified', limit_page_length=1)
+            stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","stripe_account"],filters={"stripe_id":customer_id},order_by='modified desc', limit_page_length=1)
             if(len(stripe_customers)):
                 if(stripe_customers[0]["stripe_account"]):
                     filters={"name":stripe_customers[0]["stripe_account"]}
@@ -805,7 +805,7 @@ def setDefautStripeAccount(stripe_account):
         stripe_account=frappe.get_doc("Stripe Settings",stripe_account)
         
         stripe.api_key = stripe_account.secret_key
-        stripe_customers=frappe.get_all("Stripe Customer",fields=["name","email","customer"],filters={"stripe_account":""}, limit_page_length=0)
+        stripe_customers=frappe.get_all("Stripe Customer",fields=["name","email","customer"],filters={"stripe_account":""},order_by='modified desc', limit_page_length=0)
         for stripe_customer in stripe_customers:
             try: 
                 customer_id=""
@@ -833,6 +833,7 @@ def setDefautStripeAccount(stripe_account):
             for stripe_acc in stripe_accounts:
                 frappe.db.set_value("Stripe Settings",stripe_acc["name"],"is_default",0)
             frappe.db.set_value("Stripe Settings",stripe_account,"is_default",1)
+            frappe.db.commit()
             return {"message":f"Default Stripe Account has been set !","status":1}
         except Exception as e:
             return {"message":f"An error occurred: {str(e)}","status":0}
