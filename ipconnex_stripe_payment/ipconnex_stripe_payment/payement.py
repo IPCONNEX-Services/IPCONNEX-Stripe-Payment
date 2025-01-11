@@ -835,7 +835,8 @@ def setDefautStripeAccount(stripe_account):
         try: 
             stripe_accounts=frappe.get_all("Stripe Settings",fields=["name"],filters={"is_default":1}, limit_page_length=0)
             for stripe_acc in stripe_accounts:
-                frappe.db.set_value("Stripe Settings",stripe_acc["name"],"is_default",0)
+                if(stripe_acc["name"]!=stripe_account):
+                    frappe.db.set_value("Stripe Settings",stripe_acc["name"],"is_default",0)
             frappe.db.set_value("Stripe Settings",stripe_account,"is_default",1)
             frappe.db.commit()
             return {"message":f"Default Stripe Account has been set !","status":1}
