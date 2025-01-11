@@ -97,22 +97,25 @@ def checkPaymentStatus(client_secret):
     try:
         payment_intent = stripe.PaymentIntent.retrieve(client_secret.split("_secret_")[0])
         #print(f"PaymentIntent status: {payment_intent.status}")
-
+ 
         if payment_intent.status == "succeeded":
             return {
                 "title":"Success",
+                "description":payment_intent.description,
                 "message":"payment has been successfully processed.",
                 "status":1
             }
         elif payment_intent.status == "requires_payment_method":
             return {
                 "title":"Info",
+                "description":"",
                 "message":"Waiting for your payment ",
                 "status":1
             }
         else:
             return {
                 "title":"Error",
+                "description":"",
                 "message":"Transaction failed ! server error ",
                 "status":1
             }
@@ -803,9 +806,9 @@ def setDefautStripeAccount(stripe_account):
         frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError) 
     else : 
         
-        stripe_account=frappe.get_doc("Stripe Settings",stripe_account)
+        stripe_settings=frappe.get_doc("Stripe Settings",stripe_account)
         
-        stripe.api_key = stripe_account.secret_key
+        stripe.api_key = stripe_settings.secret_key
         stripe_customers=frappe.get_all("Stripe Customer",fields=["name","email","customer"],filters={"stripe_account":""},order_by='modified desc', limit_page_length=0)
         for stripe_customer in stripe_customers:
             try: 
