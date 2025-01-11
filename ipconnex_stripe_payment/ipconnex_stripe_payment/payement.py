@@ -64,7 +64,7 @@ def setup_install():
         })
         link_doc.insert(ignore_permissions = True)
 @frappe.whitelist() 
-def generateClientSecret(amount,currency,methods):
+def generateClientSecret(amount,currency,methods,description=""):
     currency='cad'
     methods=['card']
     try:
@@ -79,7 +79,8 @@ def generateClientSecret(amount,currency,methods):
         payment_intent = stripe.PaymentIntent.create(
             amount=amount,  
             currency=currency,
-            payment_method_types=methods
+            payment_method_types=methods,
+            description=description
         )
         return {
             "client_secret":payment_intent.client_secret,
