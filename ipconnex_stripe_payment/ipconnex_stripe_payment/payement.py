@@ -94,7 +94,14 @@ def generateClientSecret(amount,currency,methods,description=""):
     
 @frappe.whitelist() 
 def checkPaymentStatus(client_secret):
-    try:
+    try:     
+        stripe_settings=frappe.db.get_all("Stripe Settings",fields=["publishable_key","secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
+        if(len(stripe_settings)==0):
+            return{
+                "error":'Set Stripe Settings first !',
+                "status":0
+            }
+        stripe.api_key=stripe_settings[0].secret_key
         payment_intent = stripe.PaymentIntent.retrieve(client_secret.split("_secret_")[0])
         #print(f"PaymentIntent status: {payment_intent.status}")
  
