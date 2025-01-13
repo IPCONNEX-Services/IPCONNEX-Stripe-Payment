@@ -101,7 +101,7 @@ def checkPaymentStatus(client_secret):
         if payment_intent.status == "succeeded":
             return {
                 "title":"Success",
-                "description":payment_intent.description,
+                "description":"-"+payment_intent.description,
                 "message":"payment has been successfully processed.",
                 "status":1
             }
