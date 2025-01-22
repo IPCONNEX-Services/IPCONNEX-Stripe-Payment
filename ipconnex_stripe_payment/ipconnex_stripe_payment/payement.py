@@ -63,8 +63,12 @@ def setup_install():
             "doctype":"DocType Link"
         })
         link_doc.insert(ignore_permissions = True)
-@frappe.whitelist() 
+
+@frappe.whitelist(allow_guest=True) 
 def generateClientSecret(amount,currency,methods,description=""):
+    cmd=frappe.local.request.form.to_dict().get('cmd', '')
+    if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
+        frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
     currency='cad'
     methods=['card']
     try:
@@ -92,8 +96,12 @@ def generateClientSecret(amount,currency,methods,description=""):
             "status":0
         }
     
-@frappe.whitelist() 
+
+@frappe.whitelist(allow_guest=True) 
 def checkPaymentStatus(client_secret):
+    cmd=frappe.local.request.form.to_dict().get('cmd', '')
+    if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement'):
+        frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError)
     try:     
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["publishable_key","secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
