@@ -42,7 +42,11 @@ frappe.ui.form.on("Stripe Customer", {
         frappe.call({
           method:
             "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.getCustomer",
-          args: { email: frm.doc.email, full_name: frm.doc.customer },
+          args: {
+            email: frm.doc.email,
+            full_name: frm.doc.customer,
+            stripe_acc: frm.doc.stripe_account ?? "",
+          },
           callback: function (res) {
             if (res.message.status == 1) {
               frm.set_value({ stripe_id: res.message.id }).then(() => {
