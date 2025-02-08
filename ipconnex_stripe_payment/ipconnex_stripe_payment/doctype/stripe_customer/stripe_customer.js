@@ -104,7 +104,10 @@ frappe.ui.form.on("Stripe Customer", {
         frappe.call({
           method:
             "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.getNewCardToken",
-          args: { customer_id: frm.doc.stripe_id },
+          args: {
+            customer_id: frm.doc.stripe_id,
+            stripe_acc: frm.doc.stripe_account ?? "",
+          },
           callback: function (res) {
             if (res.message.status == 1) {
               frm.set_value({ card_token: res.message.result }).then(() => {
