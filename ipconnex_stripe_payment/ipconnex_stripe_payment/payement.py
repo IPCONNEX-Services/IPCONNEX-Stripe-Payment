@@ -650,7 +650,7 @@ def process_subscription(user_sub,sub_type):
                 'amount': rate ,
             }]
     })
-
+    invoice_doc.flags.ignore_permissions = True
     invoice_doc.set_missing_values()
     invoice_doc.calculate_taxes_and_totals()
     invoice_doc.save(ignore_permissions=True)
