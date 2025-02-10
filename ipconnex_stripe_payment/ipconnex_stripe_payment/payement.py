@@ -740,10 +740,12 @@ def process_subscription(user_sub,sub_type):
             user_sub_doc.status="Tenders"
             user_sub_doc.expiration_date=to_date 
             user_sub_doc.save(ignore_permissions=True)  
-            mail_content = f"""<h3>Auto subscription</h3>
+            mail_content = f"""<h3>Subscription </h3>
                 <p> Hello {user_sub_doc.stripe_customer},</p>
-                <p> Your subscription on our portal has been renewed with success </p>  
-                <p>Thank you !<br> </p> """
+                <p> Your subscription on our portal has been approved ! </p>  
+                <p> Payed Amount: **** {to_pay} </p> 
+                <p> Paiment Reference : **** {stripe_card.last_digits}/{payment_intent.id} </p> 
+                <p> Thank you !<br> </p> """
                
             frappe.sendmail(
                         recipients=[user_sub_doc.user_id],
