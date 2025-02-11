@@ -745,6 +745,7 @@ def process_subscription(user_sub,sub_type):
                 <p> Your subscription on our portal has been approved ! </p>  
                 <p> Payed Amount:  {to_pay:.2f} $ </p> 
                 <p> Paiment Reference : **** {stripe_card.last_digits}/{payment_intent.id} </p> 
+                <p> Duration : {from_date} → {to_date}  </p> 
                 <p> Thank you !<br> </p> """
                
             frappe.sendmail(
