@@ -741,7 +741,7 @@ def process_subscription(user_sub,sub_type):
             user_sub_doc.expiration_date=to_date 
             user_sub_doc.save(ignore_permissions=True)  
             mail_data={
-                "stripe_customer": user_sub_doc.stripe_customer,
+                "customer": invoice_doc.customer,
                 "to_pay": to_pay,
                 "card_last_digits": stripe_card.last_digits,
                 "payment_id": payment_intent.id,
