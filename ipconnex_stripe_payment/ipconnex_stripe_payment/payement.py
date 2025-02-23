@@ -740,18 +740,18 @@ def process_subscription(user_sub,sub_type):
             user_sub_doc.status="Tenders"
             user_sub_doc.expiration_date=to_date 
             user_sub_doc.save(ignore_permissions=True)  
-            mail_content = f"""<h3>Subscription </h3>
-                <p> Hello {user_sub_doc.stripe_customer},</p>
-                <p> Your subscription on our portal has been approved ! </p>  
-                <p> Payed Amount:  {to_pay:.2f} $ </p> 
-                <p> Paiment Reference : **** {stripe_card.last_digits}/{payment_intent.id} </p> 
-                <p> Duration : {from_date} → {to_date}  </p> 
-                <p> Thank you !<br> </p> """
-               
+            mail_data={
+                "stripe_customer": user_sub_doc.stripe_customer,
+                "to_pay": to_pay,
+                "card_last_digits": stripe_card.last_digits,
+                "payment_id": payment_intent.id,
+                "from_date": from_date,
+                "to_date": to_date
+            }
             frappe.sendmail(
                         recipients=[user_sub_doc.user_id],
-                        subject='Subscription AlgeriaProjects',
-                        content= mail_content,
+                        subject= sub_type_doc.submail_title,
+                        content= str(sub_type_doc.submail_template).format(**mail_data),
                         now=True,
                         )
             return result

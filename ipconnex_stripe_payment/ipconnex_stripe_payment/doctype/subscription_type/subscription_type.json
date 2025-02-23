@@ -13,7 +13,9 @@
     "item",
     "company",
     "unit",
-    "income_account"
+    "income_account",
+    "submail_title",
+    "submail_template"
   ],
   "fields": [
     {
@@ -55,6 +57,16 @@
       "fieldtype": "Link",
       "label": "Income Account",
       "options": "Account"
+    },
+    {
+      "fieldname": "submail_title",
+      "fieldtype": "Data",
+      "label": "Email Subject"
+    },
+    {
+      "fieldname": "submail_template",
+      "fieldtype": "Text Editor",
+      "label": "Email Template"
     }
   ],
   "links": [],
