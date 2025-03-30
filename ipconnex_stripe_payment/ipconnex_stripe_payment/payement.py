@@ -737,7 +737,7 @@ def process_subscription(user_sub,sub_type):
                 sub_dict["idx"]=sub_dict["idx"]+1
                 subscription_list.append(sub_dict)
             user_sub_doc.set("subscription_list", subscription_list) 
-            user_sub_doc.status="Tenders"
+            user_sub_doc.status="Subscribed"
             user_sub_doc.expiration_date=to_date 
             user_sub_doc.save(ignore_permissions=True)  
             mail_data={
