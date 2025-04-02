@@ -221,7 +221,6 @@ def processPayment(doctype,docname):
             dateStr = frappe.utils.nowdate() 
             for stripe_card in stripe_customer.cards_list:
                 try:
-
                     payment_method_id=stripe_card.card_id
                     if(invoice_doc.disable_rounded_total):
                         amount=min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
@@ -247,79 +246,82 @@ def processPayment(doctype,docname):
                         }
                     )
                     result= {"message":"Invoice Payed using Stripe #"+payment_intent.id,"status":1}
-                    payment_entry = frappe.get_doc({
-                        "doctype": "Payment Entry",
-                        'party_type': 'Customer',
-                        'party': invoice_doc.customer,
-                        'paid_amount': amount,
-                        'received_amount': amount,
-                        'target_exchange_rate': 1.0,
-                        "paid_from": invoice_doc.debit_to,
-                        'paid_to_account_currency': invoice_doc.currency,
-                        "paid_from_account_currency": invoice_doc.currency,
-                        'paid_to': pay_to,
-                        "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
-                        "reference_date": dateStr,
-                        'company': invoice_doc.company,
-                        'mode_of_payment': 'Credit Card',
-                        "status": "Submitted",
-                        "docstatus": 1,
-                        "references": [
-                            {
+                    try : 
+                        payment_entry = frappe.get_doc({
+                            "doctype": "Payment Entry",
+                            'party_type': 'Customer',
+                            'party': invoice_doc.customer,
+                            'paid_amount': amount,
+                            'received_amount': amount,
+                            'target_exchange_rate': 1.0,
+                            "paid_from": invoice_doc.debit_to,
+                            'paid_to_account_currency': invoice_doc.currency,
+                            "paid_from_account_currency": invoice_doc.currency,
+                            'paid_to': pay_to,
+                            "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
+                            "reference_date": dateStr,
+                            'company': invoice_doc.company,
+                            'mode_of_payment': 'Credit Card',
+                            "status": "Submitted",
+                            "docstatus": 1,
+                            "references": [
+                                {
+                                    "reference_doctype": invoice_doc.doctype,
+                                    "reference_name": invoice_doc.name,
+                                    "total_amount": invoice_doc.grand_total,
+                                    "allocated_amount":amount,
+                                    "exchange_rate": 1.0,
+                                    "exchange_gain_loss": 0.0,
+                                    "parentfield": "references",
+                                    "parenttype": "Payment Entry",
+                                    "doctype": "Payment Entry Reference",
+                                },
+                            ],
+                        })
+                        payment_entry.save(ignore_permissions=True)  
+                        if(email_template and sender ):
+                            email_sender= frappe.db.get_value('Email Account', sender ,'email_id')
+                            template_doc=frappe.get_doc("Email Template",email_template)
+                            mail_template=template_doc.response
+                            mail_subject=template_doc.subject
+                            context={"amount":amount,
+                                    "customer":invoice_doc.customer,
+                                    "customer_name":invoice_doc.customer_name,
+                                    "grand_total":invoice_doc.grand_total,
+                                    "doctype":invoice_doc.doctype,
+                                    "name":invoice_doc.name,
+                                    "card_last_digits":stripe_card.last_digits,
+                                    "stripe_payment_ref":payment_intent.id,
+                                    "exp_card":stripe_card.last_digits
+                                    }
+                            mail_content =frappe.render_template(mail_template,context=context )
+                            mail_subject =frappe.render_template(mail_subject,context=context )
+                            frappe.sendmail(
+                                    recipients=stripe_customer.email,
+                                    sender=email_sender,
+                                    subject=mail_subject,
+                                    content=mail_content,     
+                                    doctype=invoice_doc.doctype,
+                                    name=invoice_doc.name,
+                                    read_receipt= "0",
+                                    print_letterhead= "1",
+                                    now=True
+                                    #now=True
+                            )
+                            frappe.get_doc({
+                                "doctype": "Communication",
+                                "communication_type": "Communication",
+                                "content": mail_content,
+                                "subject": mail_subject,
+                                "sent_or_received": "Sent",
+                                "recipients": stripe_customer.email,
+                                "sender": email_sender,
                                 "reference_doctype": invoice_doc.doctype,
                                 "reference_name": invoice_doc.name,
-                                "total_amount": invoice_doc.grand_total,
-                                "allocated_amount":amount,
-                                "exchange_rate": 1.0,
-                                "exchange_gain_loss": 0.0,
-                                "parentfield": "references",
-                                "parenttype": "Payment Entry",
-                                "doctype": "Payment Entry Reference",
-                            },
-                        ],
-                    })
-                    payment_entry.save(ignore_permissions=True)  
-                    if(email_template and sender ):
-                        email_sender= frappe.db.get_value('Email Account', sender ,'email_id')
-                        template_doc=frappe.get_doc("Email Template",email_template)
-                        mail_template=template_doc.response
-                        mail_subject=template_doc.subject
-                        context={"amount":amount,
-                                 "customer":invoice_doc.customer,
-                                 "customer_name":invoice_doc.customer_name,
-                                 "grand_total":invoice_doc.grand_total,
-                                 "doctype":invoice_doc.doctype,
-                                 "name":invoice_doc.name,
-                                 "card_last_digits":stripe_card.last_digits,
-                                 "stripe_payment_ref":payment_intent.id,
-                                 "exp_card":stripe_card.last_digits
-                                 }
-                        mail_content =frappe.render_template(mail_template,context=context )
-                        mail_subject =frappe.render_template(mail_subject,context=context )
-                        frappe.sendmail(
-                                recipients=stripe_customer.email,
-                                sender=email_sender,
-                                subject=mail_subject,
-                                content=mail_content,     
-                                doctype=invoice_doc.doctype,
-                                name=invoice_doc.name,
-                                read_receipt= "0",
-                                print_letterhead= "1",
-                                now=True
-                                #now=True
-                        )
-                        frappe.get_doc({
-                            "doctype": "Communication",
-                            "communication_type": "Communication",
-                            "content": mail_content,
-                            "subject": mail_subject,
-                            "sent_or_received": "Sent",
-                            "recipients": stripe_customer.email,
-                            "sender": email_sender,
-                            "reference_doctype": invoice_doc.doctype,
-                            "reference_name": invoice_doc.name,
-                        }).insert(ignore_permissions=True)
-                    frappe.db.commit()   
+                            }).insert(ignore_permissions=True)
+                        frappe.db.commit()   
+                    except e : 
+                        result["_exception"]="Exception : "+str(e)
                     return result
                 except: 
                     payment_method_id=""
@@ -497,80 +499,84 @@ def checkProcessInvoice(doc, method):
                             "allow_redirects": "never"
                         }
                     )
-                    payment_entry = frappe.get_doc({
-                        "doctype": "Payment Entry",
-                        'party_type': 'Customer',
-                        'party': doc.customer,
-                        'paid_amount': amount,
-                        'received_amount': amount,
-                        'target_exchange_rate': 1.0,
-                        "paid_from": doc.debit_to,
-                        'paid_to_account_currency': doc.currency,
-                        "paid_from_account_currency": doc.currency,
-                        'paid_to': pay_to,
-                        "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
-                        "reference_date": dateStr,
-                        'company': doc.company,
-                        'mode_of_payment': 'Credit Card',
-                        "status": "Submitted",
-                        "docstatus": 1,
-                        "references": [
-                            {
+                    
+                    try : 
+                        payment_entry = frappe.get_doc({
+                            "doctype": "Payment Entry",
+                            'party_type': 'Customer',
+                            'party': doc.customer,
+                            'paid_amount': amount,
+                            'received_amount': amount,
+                            'target_exchange_rate': 1.0,
+                            "paid_from": doc.debit_to,
+                            'paid_to_account_currency': doc.currency,
+                            "paid_from_account_currency": doc.currency,
+                            'paid_to': pay_to,
+                            "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
+                            "reference_date": dateStr,
+                            'company': doc.company,
+                            'mode_of_payment': 'Credit Card',
+                            "status": "Submitted",
+                            "docstatus": 1,
+                            "references": [
+                                {
+                                    "reference_doctype": doc.doctype,
+                                    "reference_name": doc.name,
+                                    "total_amount": doc.grand_total,
+                                    "allocated_amount":amount,
+                                    "exchange_rate": 1.0,
+                                    "exchange_gain_loss": 0.0,
+                                    "parentfield": "references",
+                                    "parenttype": "Payment Entry",
+                                    "doctype": "Payment Entry Reference",
+                                },
+                            ],
+                        })
+                        payment_entry.save(ignore_permissions=True) 
+                        if(email_template and sender ):
+                            email_sender= frappe.db.get_value('Email Account', sender ,'email_id')
+                            template_doc=frappe.get_doc("Email Template",email_template)
+                            mail_template=template_doc.response
+                            mail_subject=template_doc.subject
+                            context={"amount":amount,
+                                    "customer":doc.customer,
+                                    "customer_name":doc.customer_name,
+                                    "grand_total":doc.grand_total,
+                                    "doctype":doc.doctype,
+                                    "name":doc.name,
+                                    "card_last_digits":stripe_card.last_digits,
+                                    "stripe_payment_ref":payment_intent.id,
+                                    "exp_card":stripe_card.last_digits
+                                    }
+                            mail_content =frappe.render_template(mail_template,context=context )
+                            mail_subject =frappe.render_template(mail_subject,context=context )
+                            frappe.sendmail(
+                                    recipients=stripe_customer.email,
+                                    sender=email_sender,
+                                    subject=mail_subject,
+                                    content=mail_content,     
+                                    doctype=doc.doctype,
+                                    name=doc.name,
+                                    read_receipt= "0",
+                                    print_letterhead= "1",
+                                    now=True
+                                    #now=True
+                            )
+                            frappe.get_doc({
+                                "doctype": "Communication",
+                                "communication_type": "Communication",
+                                "content": mail_content,
+                                "subject": mail_subject,
+                                "sent_or_received": "Sent",
+                                "recipients": stripe_customer.email,
+                                "sender": email_sender,
                                 "reference_doctype": doc.doctype,
                                 "reference_name": doc.name,
-                                "total_amount": doc.grand_total,
-                                "allocated_amount":amount,
-                                "exchange_rate": 1.0,
-                                "exchange_gain_loss": 0.0,
-                                "parentfield": "references",
-                                "parenttype": "Payment Entry",
-                                "doctype": "Payment Entry Reference",
-                            },
-                        ],
-                    })
-                    payment_entry.save(ignore_permissions=True) 
-                    if(email_template and sender ):
-                        email_sender= frappe.db.get_value('Email Account', sender ,'email_id')
-                        template_doc=frappe.get_doc("Email Template",email_template)
-                        mail_template=template_doc.response
-                        mail_subject=template_doc.subject
-                        context={"amount":amount,
-                                 "customer":doc.customer,
-                                 "customer_name":doc.customer_name,
-                                 "grand_total":doc.grand_total,
-                                 "doctype":doc.doctype,
-                                 "name":doc.name,
-                                 "card_last_digits":stripe_card.last_digits,
-                                 "stripe_payment_ref":payment_intent.id,
-                                 "exp_card":stripe_card.last_digits
-                                 }
-                        mail_content =frappe.render_template(mail_template,context=context )
-                        mail_subject =frappe.render_template(mail_subject,context=context )
-                        frappe.sendmail(
-                                recipients=stripe_customer.email,
-                                sender=email_sender,
-                                subject=mail_subject,
-                                content=mail_content,     
-                                doctype=doc.doctype,
-                                name=doc.name,
-                                read_receipt= "0",
-                                print_letterhead= "1",
-                                now=True
-                                #now=True
-                        )
-                        frappe.get_doc({
-                            "doctype": "Communication",
-                            "communication_type": "Communication",
-                            "content": mail_content,
-                            "subject": mail_subject,
-                            "sent_or_received": "Sent",
-                            "recipients": stripe_customer.email,
-                            "sender": email_sender,
-                            "reference_doctype": doc.doctype,
-                            "reference_name": doc.name,
-                        }).insert(ignore_permissions=True)
-                    frappe.db.commit()    
-                    frappe.msgprint("Success :Invoice Payed using Stripe #"+payment_intent.id)
+                            }).insert(ignore_permissions=True)
+                        frappe.db.commit()    
+                    except e : 
+                        frappe.msgprint("Exception  : " + str(e))
+                    frappe.msgprint("Success : Invoice Payed using Stripe #"+payment_intent.id)
                     return
                 except: 
                     payment_method_id=""
@@ -663,7 +669,6 @@ def process_subscription(user_sub,sub_type):
         try:
             payment_method_id=stripe_card.card_id
             amount_cent=int(to_pay *100)
-            
             #use new card item
             stripe_doc=frappe.get_doc("Stripe Settings",stripe_card.stripe_account )
             pay_to = stripe_doc.pay_to
@@ -680,81 +685,87 @@ def process_subscription(user_sub,sub_type):
                     "allow_redirects": "never"
                 }
             )
-            invoice_doc.submit()
-            result= {"message":"Invoice Payed  #"+payment_intent.id,"status":1}
-            payment_entry = frappe.get_doc({
-                "doctype": "Payment Entry",
-                'party_type': 'Customer',
-                'party': invoice_doc.customer,
-                'paid_amount': to_pay,
-                'received_amount': to_pay,
-                'target_exchange_rate': 1.0,
-                "paid_from": invoice_doc.debit_to,
-                'paid_to_account_currency': invoice_doc.currency,
-                "paid_from_account_currency": invoice_doc.currency,
-                'paid_to': pay_to,
-                "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
-                "reference_date": posting_date ,
-                'company': invoice_doc.company,
-                'mode_of_payment': 'Credit Card',
-                "status": "Submitted",
-                "docstatus": 1,
-                "references": [
-                    {
-                        "reference_doctype": invoice_doc.doctype,
-                        "reference_name": invoice_doc.name,
-                        "total_amount": invoice_doc.grand_total,
-                        "allocated_amount":to_pay,
-                        "exchange_rate": 1.0,
-                        "exchange_gain_loss": 0.0,
-                        "parentfield": "references",
-                        "parenttype": "Payment Entry",
-                        "doctype": "Payment Entry Reference",
-                    },
-                ],
-            })
-            payment_entry.save(ignore_permissions=True)  
-            frappe.db.commit()   
-            from_date=frappe.utils.nowdate() 
-            if(expiration_date):
-                if(datetime.strptime(frappe.utils.nowdate() , "%Y-%m-%d").date() <= expiration_date): 
-                    from_date= frappe.utils.add_days(str(expiration_date), 1)
             
-            from_date_obj=datetime.strptime(from_date, "%Y-%m-%d").date() 
-            sub_duration = calendar.monthrange(from_date_obj.year, from_date_obj.month)[1]-1
-            if(sub_type_doc.unit  =="Year"): 
-                sub_duration=365-(from_date_obj.year%4!=0)
-            to_date=frappe.utils.add_days(from_date,sub_duration)
-            subscription_list=[{
-                "type":sub_type, 
-                "from":from_date, 
-                "to":to_date ,
-                "sales_invoice":invoice_doc.name, 
-                "payment_entry":payment_entry.name
-            }]
-            for sub in  user_sub_doc.subscription_list:
-                sub_dict=sub.as_dict()
-                sub_dict["idx"]=sub_dict["idx"]+1
-                subscription_list.append(sub_dict)
-            user_sub_doc.set("subscription_list", subscription_list) 
-            user_sub_doc.status="Subscribed"
-            user_sub_doc.expiration_date=to_date 
-            user_sub_doc.save(ignore_permissions=True)  
-            mail_data={
-                "customer": invoice_doc.customer,
-                "to_pay": to_pay,
-                "card_last_digits": stripe_card.last_digits,
-                "payment_id": payment_intent.id,
-                "from_date": from_date,
-                "to_date": to_date
-            }
-            frappe.sendmail(
-                        recipients=[user_sub_doc.user_id],
-                        subject= sub_type_doc.submail_title,
-                        content= str(sub_type_doc.submail_template).format(**mail_data),
-                        now=True,
-                        )
+            result= {"message":"Invoice Payed  #"+payment_intent.id,"status":1}
+            try : 
+                invoice_doc.submit()
+                payment_entry = frappe.get_doc({
+                    "doctype": "Payment Entry",
+                    'party_type': 'Customer',
+                    'party': invoice_doc.customer,
+                    'paid_amount': to_pay,
+                    'received_amount': to_pay,
+                    'target_exchange_rate': 1.0,
+                    "paid_from": invoice_doc.debit_to,
+                    'paid_to_account_currency': invoice_doc.currency,
+                    "paid_from_account_currency": invoice_doc.currency,
+                    'paid_to': pay_to,
+                    "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
+                    "reference_date": posting_date ,
+                    'company': invoice_doc.company,
+                    'mode_of_payment': 'Credit Card',
+                    "status": "Submitted",
+                    "docstatus": 1,
+                    "references": [
+                        {
+                            "reference_doctype": invoice_doc.doctype,
+                            "reference_name": invoice_doc.name,
+                            "total_amount": invoice_doc.grand_total,
+                            "allocated_amount":to_pay,
+                            "exchange_rate": 1.0,
+                            "exchange_gain_loss": 0.0,
+                            "parentfield": "references",
+                            "parenttype": "Payment Entry",
+                            "doctype": "Payment Entry Reference",
+                        },
+                    ],
+                })
+                payment_entry.save(ignore_permissions=True)  
+                frappe.db.commit()   
+                from_date=frappe.utils.nowdate() 
+                if(expiration_date):
+                    if(datetime.strptime(frappe.utils.nowdate() , "%Y-%m-%d").date() <= expiration_date): 
+                        from_date= frappe.utils.add_days(str(expiration_date), 1)
+                
+                from_date_obj=datetime.strptime(from_date, "%Y-%m-%d").date() 
+                sub_duration = calendar.monthrange(from_date_obj.year, from_date_obj.month)[1]-1
+                if(sub_type_doc.unit  =="Year"): 
+                    sub_duration=365-(from_date_obj.year%4!=0)
+                to_date=frappe.utils.add_days(from_date,sub_duration)
+                subscription_list=[{
+                    "type":sub_type, 
+                    "from":from_date, 
+                    "to":to_date ,
+                    "sales_invoice":invoice_doc.name, 
+                    "payment_entry":payment_entry.name
+                }]
+                for sub in  user_sub_doc.subscription_list:
+                    sub_dict=sub.as_dict()
+                    sub_dict["idx"]=sub_dict["idx"]+1
+                    subscription_list.append(sub_dict)
+                user_sub_doc.set("subscription_list", subscription_list) 
+                user_sub_doc.status="Subscribed"
+                user_sub_doc.expiration_date=to_date 
+                user_sub_doc.save(ignore_permissions=True)  
+                mail_data={
+                    "customer": invoice_doc.customer,
+                    "to_pay": to_pay,
+                    "card_last_digits": stripe_card.last_digits,
+                    "payment_id": payment_intent.id,
+                    "from_date": from_date,
+                    "to_date": to_date
+                }
+                frappe.sendmail(
+                            recipients=[user_sub_doc.user_id],
+                            subject= sub_type_doc.submail_title,
+                            content= str(sub_type_doc.submail_template).format(**mail_data),
+                            now=True,
+                            )
+                        
+            except stripe.error.StripeError as e:
+                result["_exception"]="Exception : "+str(e)
             return result
+        
         
         except stripe.error.StripeError as e:
             payment_method_id=""
