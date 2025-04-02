@@ -499,7 +499,7 @@ def checkProcessInvoice(doc, method):
                             "allow_redirects": "never"
                         }
                     )
-                    
+                    payment_ref=payment_intent.id
                     try : 
                         payment_entry = frappe.get_doc({
                             "doctype": "Payment Entry",
@@ -512,7 +512,7 @@ def checkProcessInvoice(doc, method):
                             'paid_to_account_currency': doc.currency,
                             "paid_from_account_currency": doc.currency,
                             'paid_to': pay_to,
-                            "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_intent.id,
+                            "reference_no": "**** "+stripe_card.last_digits+"/stripe:"+payment_ref,
                             "reference_date": dateStr,
                             'company': doc.company,
                             'mode_of_payment': 'Credit Card',
@@ -545,7 +545,7 @@ def checkProcessInvoice(doc, method):
                                     "doctype":doc.doctype,
                                     "name":doc.name,
                                     "card_last_digits":stripe_card.last_digits,
-                                    "stripe_payment_ref":payment_intent.id,
+                                    "stripe_payment_ref":payment_ref,
                                     "exp_card":stripe_card.last_digits
                                     }
                             mail_content =frappe.render_template(mail_template,context=context )
@@ -576,7 +576,7 @@ def checkProcessInvoice(doc, method):
                         frappe.db.commit()    
                     except e : 
                         frappe.msgprint("Exception  : " + str(e))
-                    frappe.msgprint("Success : Invoice Payed using Stripe #"+payment_intent.id)
+                    frappe.msgprint("Success : Invoice Payed using Stripe #"+payment_ref)
                     return
                 except: 
                     payment_method_id=""
