@@ -777,6 +777,7 @@ def process_subscription(user_sub,sub_type):
     frappe.delete_doc("Sales Invoice", invoice_doc.name)
     return result 
 
+
 @frappe.whitelist()
 def daily_auto_subscription():     
     posting_date= frappe.utils.nowdate()        
@@ -787,7 +788,6 @@ def daily_auto_subscription():
             process_subscription(user_sub["name"],user_sub["auto_subscription_type"])
         except:
             message="Go skip for the next"
-
 
 
 @frappe.whitelist()
