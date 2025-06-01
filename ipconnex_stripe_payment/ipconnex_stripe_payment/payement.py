@@ -452,6 +452,12 @@ def updateCards(client_token):
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
 
 def checkProcessInvoice(doc, method):
+    frappe.msgprint(doc.status)
+    if doc.status not in ["Partly Paid", "Unpaid", "Overdue"] :
+        return 
+    doc_status=frappe.db.get_value(doc.doctype,doc.name,"status")
+    if doc_status not in ["Partly Paid", "Unpaid", "Overdue"] :
+        return 
     try:
         stripe_customers= frappe.db.get_all("Stripe Customer",fields=["name","auto_process","process_delay","stripe_account"],filters={"customer":doc.customer},order_by='modified desc', limit_page_length=0)
         filters={}
