@@ -220,7 +220,10 @@ def processPayment(doctype,docname):
                 return {"message":"No cards found ! please add a payment method to the current customer","status":0}
             dateStr = frappe.utils.nowdate() 
             for stripe_card in stripe_customer.cards_list:
-                try:
+                try:            
+                    doc_status=frappe.db.get_value(doctype,docname,"status")
+                    if doc_status not in ["Partly Paid", "Unpaid", "Overdue"] :
+                        return 
                     payment_method_id=stripe_card.card_id
                     if(invoice_doc.disable_rounded_total):
                         amount=min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
@@ -481,6 +484,9 @@ def checkProcessInvoice(doc, method):
             dateStr = frappe.utils.nowdate() 
             for stripe_card in stripe_customer.cards_list:
                 try:
+                    doc_status=frappe.db.get_value(doc.doctype,doc.name,"status")
+                    if doc_status not in ["Partly Paid", "Unpaid", "Overdue"] :
+                        return 
                     payment_method_id=stripe_card.card_id
                     if(doc.disable_rounded_total):
                         amount=min(doc.outstanding_amount,doc.grand_total)
@@ -672,7 +678,10 @@ def process_subscription(user_sub,sub_type):
         to_pay =min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
 
     for stripe_card in stripe_customer_doc.cards_list:
-        try:
+        try:    
+            doc_status=frappe.db.get_value(invoice_doc.doctype,invoice_doc.name,"status")
+            if doc_status not in ["Partly Paid", "Unpaid", "Overdue"] :
+                return 
             payment_method_id=stripe_card.card_id
             amount_cent=int(to_pay *100)
             #use new card item
