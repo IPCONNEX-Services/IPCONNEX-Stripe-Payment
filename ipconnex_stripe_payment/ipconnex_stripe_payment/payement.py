@@ -492,7 +492,6 @@ def deleteCard(client_token,card_id,card_idx):
 
 
 def checkProcessInvoice(doc, method):
-    frappe.msgprint(doc.status)
     if doc.status not in ["Partly Paid", "Unpaid", "Overdue"] :
         return 
     doc_status=frappe.db.get_value(doc.doctype,doc.name,"status")
