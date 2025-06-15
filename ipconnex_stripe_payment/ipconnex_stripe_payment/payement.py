@@ -1,14 +1,15 @@
 
 from __future__ import unicode_literals
 import frappe
-import json
-from six import string_types
 from frappe import _
 from frappe.utils import flt
+import json
+from six import string_types
 import stripe
 import random
 from datetime import datetime, timezone
 import calendar
+
 def setup_install():
     try:
         email_templates= frappe.get_all(
@@ -34,6 +35,7 @@ def setup_install():
     meta=frappe.get_meta(doctype)
     existing_fields=[field.fieldname for field in frappe.get_meta(doctype).fields ]
 
+    """
     if field_name not in existing_fields and False:
         field_doc=frappe.get_doc({
                 'parent': doctype, 
@@ -45,7 +47,7 @@ def setup_install():
                 'doctype': 'DocField'
         })
         field_doc.insert(ignore_permissions = True)
-
+    """
 
     # Create link
     links_list=frappe.get_all(
@@ -72,7 +74,6 @@ def generateClientSecret(amount,currency,methods,description=""):
     currency='cad'
     methods=['card']
     try:
-        
         stripe_settings=frappe.db.get_all("Stripe Settings",fields=["publishable_key","secret_key"],order_by='is_default desc,modified desc', limit_page_length=1)
         if(len(stripe_settings)==0):
             return{
@@ -454,6 +455,42 @@ def updateCards(client_token):
     except Exception as e :
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
 
+
+
+
+
+@frappe.whitelist()
+def deleteCard(client_token,card_id,card_idx):
+    try:
+        stripe_customers=frappe.db.get_all("Stripe Customer",
+                    filters={"card_token":client_token },
+                    fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified desc', limit_page_length=1)
+        if(len(stripe_customers)==0): 
+            return {"message":"Customer Card token unfound","status":0}
+        
+        stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
+        if card_idx < len(stripe_customer.cards_list):
+            if stripe_customer.cards_list[card_idx].card_id==card_id:        
+                stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],filters={"name":stripe_customer.cards_list[card_idx].stripe_account},order_by='is_default desc,modified desc', limit_page_length=1)
+                if(len(stripe_settings)==0):
+                    return {"message":"Server error ! Please contact the website Administrator ","status":0}
+                stripe.api_key = stripe_settings[0]["secret_key"]
+                payment_methods = stripe.PaymentMethod.list(
+                    customer=stripe_customer.cards_list[card_idx].stripe_id,
+                    type="card"
+                )
+                if payment_methods['data']:
+                    stripe.PaymentMethod.detach(stripe_customer.cards_list[card_idx].card_id)
+                    return {"message":f"{stripe_customer.cards_list[card_idx].brand} Card **** {stripe_customer.cards_list[card_idx].last_digits} removed from the account","status":1}
+                else:
+                    return {"message":"Please contact the website Administrator"+str(e),"status":0}
+                
+    except Exception as e :
+        return {"message":"Please contact the website Administrator"+str(e),"status":0}
+
+
+
+
 def checkProcessInvoice(doc, method):
     frappe.msgprint(doc.status)
     if doc.status not in ["Partly Paid", "Unpaid", "Overdue"] :
@@ -482,7 +519,7 @@ def checkProcessInvoice(doc, method):
                 frappe.msgprint("Error : No cards found ! please add a payment method to the current customer")
                 return
             dateStr = frappe.utils.nowdate() 
-            for stripe_card in stripe_customer.cards_list:
+            for stripe_card in stripe_customer.cards_list :
                 try:
                     doc_status=frappe.db.get_value(doc.doctype,doc.name,"status")
                     if doc_status not in ["Partly Paid", "Unpaid", "Overdue"] :
