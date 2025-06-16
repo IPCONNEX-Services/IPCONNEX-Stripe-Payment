@@ -18,6 +18,8 @@
     "tab_cards",
     "cards_list",
     "check_cards",
+    "card_idx",
+    "delete_card",
     "add_new_credit_card",
     "card_token",
     "open_new_card_url",
