@@ -61,6 +61,7 @@ frappe.ui.form.on("Stripe Customer", {
             },
             callback: function (res) {
               if (res.message.status == 1) {
+                frm.reload_doc();
                 Swal.fire({
                   icon: "success",
                   title: "Success",

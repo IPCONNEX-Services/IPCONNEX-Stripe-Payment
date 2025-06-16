@@ -489,6 +489,7 @@ def deleteCard(client_token,card_id,card_idx):
                 )
                 if payment_methods['data']:
                     stripe.PaymentMethod.detach(stripe_customer.cards_list[card_idx].card_id)
+                    updateCards(client_token)
                     return {"message":f"{stripe_customer.cards_list[card_idx].brand} Card **** {stripe_customer.cards_list[card_idx].last_digits} removed from the account","status":1}
                 else:
                     return {"message":"Please contact the website Administrator","status":0}
