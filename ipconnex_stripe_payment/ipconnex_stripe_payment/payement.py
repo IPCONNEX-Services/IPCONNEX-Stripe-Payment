@@ -360,6 +360,15 @@ def getNewCardToken(customer_id,stripe_acc=""):
 
 @frappe.whitelist()
 def getEmail(customer):
+    user_roles = frappe.get_all("Has Role", filters={"parent": frappe.session.user}, fields=["role"])
+    user_roles = [role.role for role in user_roles]
+    is_admin = "System Manager" in user_roles or "Accounts Manager" in user_roles
+    # you can allow guest by creating server script only but they dont have a direct access to it
+    cmd=frappe.local.request.form.to_dict().get('cmd', '')
+
+    if cmd.startswith('ipconnex_stripe_payment.ipconnex_stripe_payment.payement') and not is_admin:
+        frappe.throw(_("This function is not allowed for Guest users"), frappe.PermissionError) 
+        
     try:    
         contacts_name = frappe.db.get_all("Dynamic Link",fields=["parent"],filters={"link_doctype": "Customer","link_name": customer,
                 "parenttype": "Contact"},
@@ -462,6 +471,7 @@ def updateCards(client_token):
 @frappe.whitelist()
 def deleteCard(client_token,card_id,card_idx):
     try:
+        card_idx=int(card_idx)
         stripe_customers=frappe.db.get_all("Stripe Customer",
                     filters={"card_token":client_token },
                     fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified desc', limit_page_length=1)
