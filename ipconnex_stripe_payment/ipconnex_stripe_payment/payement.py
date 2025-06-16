@@ -466,9 +466,6 @@ def updateCards(client_token):
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
 
 
-
-
-
 @frappe.whitelist()
 def deleteCard(client_token,card_id,card_idx):
     try:

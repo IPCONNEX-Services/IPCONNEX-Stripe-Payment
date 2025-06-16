@@ -36,6 +36,53 @@ frappe.ui.form.on("Stripe Customer", {
           frm.doc.card_token;
         window.open(new_card_url, "_blank");
       });
+    $("button[data-fieldname='delete_card']")
+      .off("click")
+      .on("click", function () {
+        if (!frm.doc.card_token) {
+          Swal.fire({
+            icon: "warning",
+            title: "Warning",
+            text: "Please Generate a New Card Token First",
+          });
+          return;
+        }
+        if (
+          cur_frm.doc.cards_list.length > frm.doc.card_idx &&
+          frm.doc.card_idx >= 0
+        ) {
+          frappe.call({
+            method:
+              "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.deleteCard",
+            args: {
+              client_token: frm.doc.card_token,
+              card_id: frm.doc.cards_list,
+              card_idx: frm.doc.card_idx,
+            },
+            callback: function (res) {
+              if (res.message.status == 1) {
+                Swal.fire({
+                  icon: "success",
+                  title: "Success",
+                  text: res.message.message,
+                });
+              } else {
+                Swal.fire({
+                  icon: "warning",
+                  title: "Warning",
+                  text: res.message.message,
+                });
+              }
+            },
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "Warning",
+            text: "Index Unfound",
+          });
+        }
+      });
     $("button[data-fieldname='get_stripe_id']")
       .off("click")
       .on("click", function () {

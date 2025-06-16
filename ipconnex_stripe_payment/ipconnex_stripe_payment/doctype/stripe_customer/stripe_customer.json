@@ -85,6 +85,16 @@
       "label": "Check Cards"
     },
     {
+      "fieldname": "card_idx",
+      "fieldtype": "Int",
+      "label": "Card Index"
+    },
+    {
+      "fieldname": "delete_card",
+      "fieldtype": "Button",
+      "label": "Delete Card"
+    },
+    {
       "fieldname": "add_new_credit_card",
       "fieldtype": "Tab Break",
       "label": "Add New Credit Card"
