@@ -56,7 +56,7 @@ frappe.ui.form.on("Stripe Customer", {
               "ipconnex_stripe_payment.ipconnex_stripe_payment.payement.deleteCard",
             args: {
               client_token: frm.doc.card_token,
-              card_id: frm.doc.cards_list,
+              card_id: frm.doc.cards_list[frm.doc.card_idx].card_id,
               card_idx: frm.doc.card_idx,
             },
             callback: function (res) {
