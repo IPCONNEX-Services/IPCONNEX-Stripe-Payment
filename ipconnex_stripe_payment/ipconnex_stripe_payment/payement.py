@@ -6,6 +6,7 @@ from frappe.utils import flt
 import json
 from six import string_types
 import stripe
+import time
 import random
 from datetime import datetime, timezone
 import calendar
@@ -493,7 +494,9 @@ def deleteCard(client_token,card_id,card_idx):
                     stripe.PaymentMethod.detach(stripe_customer.cards_list[card_idx].card_id)
                     return {"message":f"{stripe_customer.cards_list[card_idx].brand} Card **** {stripe_customer.cards_list[card_idx].last_digits} removed from the account","status":1}
                 else:
-                    return {"message":"Please contact the website Administrator"+str(e),"status":0}
+                    return {"message":"Please contact the website Administrator","status":0}
+            else: 
+                return {"message":"Please contact the website Administrator","status":0}
                 
     except Exception as e :
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
