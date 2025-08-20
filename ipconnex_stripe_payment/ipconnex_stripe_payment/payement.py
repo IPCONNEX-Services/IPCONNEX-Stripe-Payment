@@ -467,7 +467,7 @@ def updateCards(client_name):
 
 @frappe.whitelist()
 def test():
-    has_access= frappe.get_all("Employee", fields=["name"], limit_page_length=0)
+    has_access= frappe.get_list("Employee", fields=["name"], limit_page_length=0)
     return has_access
 
 @frappe.whitelist()
