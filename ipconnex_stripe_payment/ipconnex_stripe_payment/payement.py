@@ -491,6 +491,7 @@ def deleteCard(client_name,card_id,card_idx):
                     )
                     if payment_methods['data']:
                         stripe.PaymentMethod.detach(stripe_customer.cards_list[card_idx].card_id)
+                        stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
                         card_details = stripe_customer.get("cards_list")
                         del card_details[card_idx]
                         stripe_customer.set("cards_list", card_details) 
