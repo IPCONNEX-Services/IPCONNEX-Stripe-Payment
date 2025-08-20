@@ -472,8 +472,7 @@ def deleteCard(client_name,card_id,card_idx):
     try:
         """
         card_idx=int(card_idx)
-        data=frappe.call( "frappe.desk.reportview.get_count",doctype="Stripe Customer",filters=[["Stripe Customer","name","=",client_name]]
-)==1
+        data=frappe.call( "frappe.desk.reportview.get_count",doctype="Stripe Customer",filters=[["Stripe Customer","name","=",client_name]])==1
         return data 
         has_access=frappe.call( "frappe.desk.reportview.get_count",doctype="Stripe Customer",filters={"name":client_name})==1
 
