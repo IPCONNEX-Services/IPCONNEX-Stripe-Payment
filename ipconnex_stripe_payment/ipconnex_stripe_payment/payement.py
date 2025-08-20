@@ -474,7 +474,7 @@ def test():
 def deleteCard(client_name,card_id,card_idx):
     try:
         card_idx=int(card_idx)
-        has_access=frappe.get_list(doctype="Stripe Customer",filters={"name":client_name})==1
+        has_access=len(frappe.get_list(doctype="Stripe Customer",filters={"name":client_name}))==1
         if( has_access ):
             stripe_customers=frappe.db.get_all("Stripe Customer",
                         filters={"name":client_name},
