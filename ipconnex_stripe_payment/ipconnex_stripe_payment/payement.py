@@ -471,32 +471,34 @@ def deleteCard(client_name,card_id,card_idx):
     try:
         card_idx=int(card_idx)
         has_access=frappe.call( "frappe.desk.reportview.get_count",doctype="Stripe Customer" ,filters={"name":client_name})==1
-        stripe_customers=frappe.db.get_all("Stripe Customer",
-                    filters={"name":client_name},
-                    fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified desc', limit_page_length=1)
-        if(len(stripe_customers)==0): 
-            return {"message":"Customer Card token unfound","status":0}
-        
-        stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
-        if card_idx < len(stripe_customer.cards_list):
-            if stripe_customer.cards_list[card_idx].card_id==card_id:        
-                stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],filters={"name":stripe_customer.cards_list[card_idx].stripe_account},order_by='is_default desc,modified desc', limit_page_length=1)
-                if(len(stripe_settings)==0):
-                    return {"message":"Server error ! Please contact the website Administrator ","status":0}
-                stripe.api_key = stripe_settings[0]["secret_key"]
-                payment_methods = stripe.PaymentMethod.list(
-                    customer=stripe_customer.cards_list[card_idx].stripe_id,
-                    type="card"
-                )
-                if payment_methods['data']:
-                    stripe.PaymentMethod.detach(stripe_customer.cards_list[card_idx].card_id)
-                    updateCards(client_name)
-                    return {"message":f"{stripe_customer.cards_list[card_idx].brand} Card **** {stripe_customer.cards_list[card_idx].last_digits} removed from the account","status":1}
-                else:
+        if( has_access ):
+            stripe_customers=frappe.db.get_all("Stripe Customer",
+                        filters={"name":client_name},
+                        fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified desc', limit_page_length=1)
+            if(len(stripe_customers)==0): 
+                return {"message":"Customer Card token unfound","status":0}
+            
+            stripe_customer=frappe.get_doc("Stripe Customer",stripe_customers[0].name)
+            if card_idx < len(stripe_customer.cards_list):
+                if stripe_customer.cards_list[card_idx].card_id==card_id:        
+                    stripe_settings=frappe.db.get_all("Stripe Settings",fields=["secret_key","pay_to","email_template","email_sending_account"],filters={"name":stripe_customer.cards_list[card_idx].stripe_account},order_by='is_default desc,modified desc', limit_page_length=1)
+                    if(len(stripe_settings)==0):
+                        return {"message":"Server error ! Please contact the website Administrator ","status":0}
+                    stripe.api_key = stripe_settings[0]["secret_key"]
+                    payment_methods = stripe.PaymentMethod.list(
+                        customer=stripe_customer.cards_list[card_idx].stripe_id,
+                        type="card"
+                    )
+                    if payment_methods['data']:
+                        stripe.PaymentMethod.detach(stripe_customer.cards_list[card_idx].card_id)
+                        updateCards(client_name)
+                        return {"message":f"{stripe_customer.cards_list[card_idx].brand} Card **** {stripe_customer.cards_list[card_idx].last_digits} removed from the account","status":1}
+                    else:
+                        return {"message":"Please contact the website Administrator","status":0}
+                else: 
                     return {"message":"Please contact the website Administrator","status":0}
-            else: 
-                return {"message":"Please contact the website Administrator","status":0}
-                
+        else :            
+            return {"message":"You don't have access to this document","status":0}
     except Exception as e :
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
 
