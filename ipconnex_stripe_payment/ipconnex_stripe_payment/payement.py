@@ -470,6 +470,8 @@ def updateCards(client_name):
 def deleteCard(client_name,card_id,card_idx):
     try:
         card_idx=int(card_idx)
+        data=frappe.call( "frappe.desk.reportview.get_count",doctype="Stripe Customer",filters={"name":client_name})==1
+        return data 
         has_access=frappe.call( "frappe.desk.reportview.get_count",doctype="Stripe Customer",filters={"name":client_name})==1
 
         if( has_access ):
