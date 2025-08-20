@@ -502,7 +502,7 @@ def deleteCard(client_name,card_id,card_idx):
                 else: 
                     return {"message":"Please contact the website Administrator","status":0}
         else :            
-            return {"message":"You don't have access to this document ","status":0,"access":has_access}
+            return {"message":"You don't have access to this document ","status":0,"access":frappe.get_list(doctype="Stripe Customer",filters={"name":client_name}, limit_page_length=0)}
     except Exception as e :
         return {"message":"Please contact the website Administrator "+str(e),"status":0,"access":has_access}
 
