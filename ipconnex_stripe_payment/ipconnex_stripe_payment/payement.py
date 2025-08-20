@@ -423,10 +423,10 @@ def get_cards_by_email(api_key, account_name, customer_email):
     return cards
 
 @frappe.whitelist()
-def updateCards(client_token):
+def updateCards(client_name):
     try:
         stripe_customers=frappe.db.get_all("Stripe Customer",
-                    filters={"card_token":client_token },
+                    filters={"name":client_name},
                     fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified desc', limit_page_length=1)
         if(len(stripe_customers)==0): 
             return {"message":"Customer Card token unfound","status":0}
@@ -467,11 +467,12 @@ def updateCards(client_token):
 
 
 @frappe.whitelist()
-def deleteCard(client_token,card_id,card_idx):
+def deleteCard(client_name,card_id,card_idx):
     try:
         card_idx=int(card_idx)
+        has_access=frappe.call( "frappe.desk.reportview.get_count",doctype="Stripe Customer" ,filters={"name":client_name})==1
         stripe_customers=frappe.db.get_all("Stripe Customer",
-                    filters={"card_token":client_token },
+                    filters={"name":client_name},
                     fields=["name","email","card_token","stripe_id","stripe_account"],order_by='modified desc', limit_page_length=1)
         if(len(stripe_customers)==0): 
             return {"message":"Customer Card token unfound","status":0}
@@ -489,7 +490,7 @@ def deleteCard(client_token,card_id,card_idx):
                 )
                 if payment_methods['data']:
                     stripe.PaymentMethod.detach(stripe_customer.cards_list[card_idx].card_id)
-                    updateCards(client_token)
+                    updateCards(client_name)
                     return {"message":f"{stripe_customer.cards_list[card_idx].brand} Card **** {stripe_customer.cards_list[card_idx].last_digits} removed from the account","status":1}
                 else:
                     return {"message":"Please contact the website Administrator","status":0}
