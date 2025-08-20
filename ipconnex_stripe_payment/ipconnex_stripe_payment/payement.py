@@ -465,10 +465,6 @@ def updateCards(client_name):
     except Exception as e :
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
 
-@frappe.whitelist()
-def test():
-    has_access= frappe.get_list("Employee", fields=["name"], limit_page_length=0)
-    return has_access
 
 @frappe.whitelist()
 def deleteCard(client_name,card_id,card_idx):
