@@ -465,17 +465,17 @@ def updateCards(client_name):
     except Exception as e :
         return {"message":"Please contact the website Administrator"+str(e),"status":0}
 
+@frappe.whitelist()
+def test():
+    has_access=  len(frappe.get_all("Employee",   fields=["name"], limit_page_length=0)) == 1
+    return has_access
 
 @frappe.whitelist()
 def deleteCard(client_name,card_id,card_idx):
-        """
     try:
-        """
         card_idx=int(card_idx)
-        data=frappe.call( "frappe.desk.reportview.get_count",doctype="Stripe Customer",filters=[["Stripe Customer","name","=",client_name]])==1
-        return data 
-        has_access=frappe.call( "frappe.desk.reportview.get_count",doctype="Stripe Customer",filters={"name":client_name})==1
-
+        has_access=  frappe.get_all("Stripe Customer", fields=["name"],filters={"name":client_name}, limit_page_length=0) == 1
+        has_access=frappe.get_list(doctype="Stripe Customer",filters={"name":client_name})==1
         if( has_access ):
             stripe_customers=frappe.db.get_all("Stripe Customer",
                         filters={"name":client_name},
@@ -504,9 +504,8 @@ def deleteCard(client_name,card_id,card_idx):
                     return {"message":"Please contact the website Administrator","status":0}
         else :            
             return {"message":"You don't have access to this document","status":0}
-        """
     except Exception as e :
-        return {"message":"Please contact the website Administrator "+str(e),"status":0,"access":has_access}"""
+        return {"message":"Please contact the website Administrator "+str(e),"status":0,"access":has_access}
 
 
 
