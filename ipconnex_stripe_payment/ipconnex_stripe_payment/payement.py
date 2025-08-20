@@ -467,14 +467,13 @@ def updateCards(client_name):
 
 @frappe.whitelist()
 def test():
-    has_access=  len(frappe.get_all("Employee",   fields=["name"], limit_page_length=0)) == 1
+    has_access= frappe.get_all("Employee", fields=["name"], limit_page_length=0)
     return has_access
 
 @frappe.whitelist()
 def deleteCard(client_name,card_id,card_idx):
     try:
         card_idx=int(card_idx)
-        has_access=  frappe.get_all("Stripe Customer", fields=["name"],filters={"name":client_name}, limit_page_length=0) == 1
         has_access=frappe.get_list(doctype="Stripe Customer",filters={"name":client_name})==1
         if( has_access ):
             stripe_customers=frappe.db.get_all("Stripe Customer",
