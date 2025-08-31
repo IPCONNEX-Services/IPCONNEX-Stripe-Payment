@@ -733,9 +733,6 @@ def process_subscription(user_sub,sub_type):
 
     for stripe_card in stripe_customer_doc.cards_list:
         try:    
-            doc_status=frappe.db.get_value(invoice_doc.doctype,invoice_doc.name,"status")
-            if doc_status not in ["Partly Paid", "Unpaid", "Overdue"] :
-                return 
             payment_method_id=stripe_card.card_id
             amount_cent=int(to_pay *100)
             #use new card item
