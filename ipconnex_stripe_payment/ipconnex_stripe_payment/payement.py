@@ -730,7 +730,7 @@ def process_subscription(user_sub,sub_type):
     to_pay = invoice_doc.outstanding_amount
     if(invoice_doc.disable_rounded_total):
         to_pay =min(invoice_doc.outstanding_amount,invoice_doc.grand_total)
-
+    result={"message":"Echec ","status":0}
     for stripe_card in stripe_customer_doc.cards_list:
         try:    
             payment_method_id=stripe_card.card_id
